@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Klik Indomaret: Start PHP Server",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\start-php.ps1"
+      ],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Klik Indomaret: Open Browser",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Start-Sleep -Seconds 2; Start-Process 'http://127.0.0.1:8000/'"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Klik Indomaret: Run PHP + Browser",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "Klik Indomaret: Start PHP Server",
+        "Klik Indomaret: Open Browser"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

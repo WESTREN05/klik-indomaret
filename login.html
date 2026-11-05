@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b3f8f">
+  <meta name="description" content="Masuk atau daftar akun Klik Indomaret untuk memesan lebih cepat, mengumpulkan poin, dan menikmati promo member.">
+  <title>Masuk — Klik Indomaret</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b3f8f'/%3E%3Cpath d='M20 24h24l2 26H18l2-26Z' fill='%23fff'/%3E%3Cpath d='M26 24a6 6 0 0 1 12 0' stroke='%23fff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="login" data-header="none" data-nav="false">
+  <div class="app">
+    <div class="auth">
+      <section class="auth-hero">
+        <a class="logo" href="index.html" aria-label="Klik Indomaret, kembali ke beranda">
+          <span class="logo__mark" data-icon="bag"></span>
+          <span class="logo__text">Klik <span>Indomaret</span></span>
+        </a>
+
+        <p class="auth-hero__eyebrow">Member Klik Indomaret</p>
+        <h1 id="authHeadline">Belanja kebutuhan,<br>tanpa antre.</h1>
+        <p id="authLead">Masuk untuk memesan lebih cepat, menyimpan alamat, dan mengumpulkan poin setiap belanja.</p>
+        <span class="auth-hero__art" aria-hidden="true">🛍️</span>
+      </section>
+
+      <section class="auth-card" aria-label="Form akun">
+        <div class="auth-tabs" role="tablist" aria-label="Pilih masuk atau daftar">
+          <button class="is-active" type="button" role="tab" aria-selected="true" data-auth-tab="login">Masuk</button>
+          <button type="button" role="tab" aria-selected="false" data-auth-tab="register">Daftar</button>
+        </div>
+
+        <form id="loginForm" novalidate>
+          <div class="field" id="loginContactField">
+            <label for="loginContact">Nomor HP / Email</label>
+            <div class="field__box">
+              <span data-icon="phone"></span>
+              <input id="loginContact" name="contact" type="text" placeholder="0812 3456 7890 atau email" autocomplete="username">
+            </div>
+            <span class="field__error" id="loginContactError">Nomor HP atau email wajib diisi.</span>
+          </div>
+
+          <div class="field" id="loginPasswordField">
+            <label for="loginPassword">Password</label>
+            <div class="field__box">
+              <span data-icon="lock"></span>
+              <input id="loginPassword" name="password" type="password" placeholder="Minimal 6 karakter" autocomplete="current-password">
+              <button class="field__toggle" type="button" data-toggle-pass="loginPassword" aria-label="Tampilkan password">
+                <span data-icon="eye"></span>
+              </button>
+            </div>
+            <span class="field__error" id="loginPasswordError">Password minimal 6 karakter.</span>
+          </div>
+
+          <div class="auth-row">
+            <label><input class="checkbox" type="checkbox" id="remember" checked> Ingat saya</label>
+            <a href="#" id="forgotLink">Lupa password?</a>
+          </div>
+
+          <button class="btn btn--primary btn--block" type="submit" id="loginSubmit">Masuk</button>
+        </form>
+
+        <form id="registerForm" hidden novalidate>
+          <div class="field" id="regNameField">
+            <label for="regName">Nama lengkap</label>
+            <div class="field__box">
+              <span data-icon="user"></span>
+              <input id="regName" name="name" type="text" placeholder="Nama sesuai KTP" autocomplete="name">
+            </div>
+            <span class="field__error" id="regNameError">Nama minimal 3 karakter.</span>
+          </div>
+
+          <div class="field" id="regPhoneField">
+            <label for="regPhone">Nomor HP</label>
+            <div class="field__box">
+              <span data-icon="phone"></span>
+              <input id="regPhone" name="phone" type="tel" placeholder="08xxxxxxxxxx" autocomplete="tel">
+            </div>
+            <span class="field__error" id="regPhoneError">Nomor HP harus 10–15 digit angka.</span>
+          </div>
+
+          <div class="field" id="regEmailField">
+            <label for="regEmail">Email</label>
+            <div class="field__box">
+              <span data-icon="mail"></span>
+              <input id="regEmail" name="email" type="email" placeholder="nama@email.com" autocomplete="email">
+            </div>
+            <span class="field__error" id="regEmailError">Format email belum benar.</span>
+          </div>
+
+          <div class="field" id="regPasswordField">
+            <label for="regPassword">Password</label>
+            <div class="field__box">
+              <span data-icon="lock"></span>
+              <input id="regPassword" name="password" type="password" placeholder="Minimal 6 karakter" autocomplete="new-password">
+              <button class="field__toggle" type="button" data-toggle-pass="regPassword" aria-label="Tampilkan password">
+                <span data-icon="eye"></span>
+              </button>
+            </div>
+            <span class="field__error" id="regPasswordError">Password minimal 6 karakter.</span>
+          </div>
+
+          <div class="field" id="regConfirmField">
+            <label for="regConfirm">Ulangi password</label>
+            <div class="field__box">
+              <span data-icon="lock"></span>
+              <input id="regConfirm" name="confirm" type="password" placeholder="Ketik ulang password" autocomplete="new-password">
+              <button class="field__toggle" type="button" data-toggle-pass="regConfirm" aria-label="Tampilkan password">
+                <span data-icon="eye"></span>
+              </button>
+            </div>
+            <span class="field__error" id="regConfirmError">Konfirmasi password belum sama.</span>
+          </div>
+
+          <button class="btn btn--primary btn--block" type="submit" id="registerSubmit">Buat akun</button>
+        </form>
+
+        <div class="divider">atau masuk dengan</div>
+
+        <div class="social-row">
+          <button class="social-btn" type="button" data-social="Google"><span aria-hidden="true">G</span> Google</button>
+          <button class="social-btn" type="button" data-social="WhatsApp"><span aria-hidden="true">💬</span> WhatsApp</button>
+        </div>
+
+        <p class="auth-switch">
+          <span id="authSwitchText">Belum punya akun?</span>
+          <button type="button" id="authSwitchBtn" data-auth-tab="register">Daftar gratis</button>
+        </p>
+
+        <div class="demo-box">
+          Akun demo: <strong>081234567890</strong> / <strong>password123</strong><br>
+          <button type="button" id="fillDemo">Isi otomatis</button>
+        </div>
+      </section>
+
+      <a class="auth__back" href="index.html">← Kembali ke beranda</a>
+    </div>
+  </div>
+
+  <div class="toasts" aria-live="polite"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/sheets.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# Jangan biarkan file JSON (berisi data pengguna) diakses langsung dari browser.
+Require all denied

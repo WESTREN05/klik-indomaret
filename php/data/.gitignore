@@ -1,0 +1,5 @@
+users.json
+orders.json
+voucher_claims.json
+*.lock
+*.tmp.*

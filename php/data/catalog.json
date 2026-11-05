@@ -1,0 +1,937 @@
+{
+  "products": [
+    {
+      "id": "sania-2l",
+      "name": "Sania Minyak Goreng Kelapa Sawit Pouch 2000 ml (2L)",
+      "short": "Sania Minyak Goreng 2L",
+      "brand": "SANIA",
+      "cat": "sembako",
+      "price": 34200,
+      "original": 38900,
+      "unit": "Pouch 2L",
+      "rating": 4.9,
+      "reviews": "1,2rb",
+      "emoji": "🫗",
+      "tint": "#fff3c4",
+      "badge": {
+        "label": "DISKON 10%",
+        "tone": "discount"
+      },
+      "tags": [
+        "jsm",
+        "ready"
+      ],
+      "variants": [
+        "Pouch 2L",
+        "Botol 2L",
+        "Pouch 1L",
+        "Jerigen 5L"
+      ],
+      "points": 34,
+      "sold": 62,
+      "desc": "Minyak goreng Sania diproses dari buah kelapa sawit pilihan bermutu tinggi menggunakan teknologi fraksinasi modern. Menghasilkan minyak jernih tahan panas tinggi sehingga masakan lebih renyah merata, tidak mudah gosong, serta hemat penggunaan.",
+      "comp": "Minyak kelapa sawit, vitamin A, dan vitamin E. Tanpa kolesterol serta tanpa pewarna tambahan.",
+      "cert": "BPOM RI, Halal MUI, dan ISO 22000."
+    },
+    {
+      "id": "indomie-goreng",
+      "name": "Indomie Mi Goreng Spesial 85g",
+      "short": "Indomie Goreng Spesial 85g",
+      "brand": "INDOMIE",
+      "cat": "sembako",
+      "price": 3100,
+      "original": 3500,
+      "unit": "85g",
+      "rating": 4.9,
+      "reviews": "12,4rb",
+      "emoji": "🍜",
+      "tint": "#ffe0d6",
+      "badge": {
+        "label": "-11%",
+        "tone": "discount"
+      },
+      "tags": [
+        "flash",
+        "ready"
+      ],
+      "variants": [
+        "85g"
+      ],
+      "points": 3,
+      "sold": 85,
+      "desc": "Mi instan goreng legendaris dengan bumbu spesial yang gurih dan aroma khas. Praktis dimasak dalam 3 menit, cocok untuk sarapan, bekal, atau camilan malam.",
+      "comp": "Tepung terigu, minyak nabati, bumbu, kecap manis, saus sambal, dan bawang goreng.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "ultra-1l",
+      "name": "Ultra Milk Susu UHT Cokelat 1000ml",
+      "short": "Ultra Milk Cokelat 1000ml",
+      "brand": "ULTRA",
+      "cat": "susu",
+      "price": 18900,
+      "original": 22500,
+      "unit": "1000ml",
+      "rating": 4.8,
+      "reviews": "3,1rb",
+      "emoji": "🥛",
+      "tint": "#e6d9ff",
+      "badge": {
+        "label": "-16%",
+        "tone": "discount"
+      },
+      "tags": [
+        "flash",
+        "ready"
+      ],
+      "variants": [
+        "1000ml",
+        "250ml"
+      ],
+      "points": 18,
+      "sold": 50,
+      "desc": "Susu UHT cokelat dengan rasa cokelat yang kaya dan lembut. Sumber kalsium serta vitamin D untuk mendukung pertumbuhan tulang dan gigi.",
+      "comp": "Susu segar, gula, bubuk kakao, lesitin kedelai, vitamin A, D, B1, B2, B6, dan B12.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "bimoli-2l",
+      "name": "Bimoli Minyak Goreng Pouch 2L",
+      "short": "Bimoli Minyak Goreng 2L",
+      "brand": "BIMOLI",
+      "cat": "sembako",
+      "price": 34500,
+      "original": 38900,
+      "unit": "Pouch 2L",
+      "rating": 4.8,
+      "reviews": "2,2rb",
+      "emoji": "🫒",
+      "tint": "#fff3c4",
+      "badge": {
+        "label": "-11%",
+        "tone": "discount"
+      },
+      "tags": [
+        "flash",
+        "ready"
+      ],
+      "variants": [
+        "Pouch 2L",
+        "Botol 1L"
+      ],
+      "points": 34,
+      "sold": 44,
+      "desc": "Minyak goreng Bimoli dibuat dari kelapa sawit pilihan dan disaring berulang sehingga jernih, ringan, dan tidak mudah berbau tengik.",
+      "comp": "Minyak kelapa sawit murni dengan vitamin A.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "telur-10",
+      "name": "Telur Ayam Negeri Pack 10 Butir",
+      "short": "Telur Ayam Negeri 10 Butir",
+      "brand": "FRESH",
+      "cat": "buah",
+      "price": 26500,
+      "original": 29500,
+      "unit": "10 butir",
+      "rating": 4.9,
+      "reviews": "1,2k",
+      "emoji": "🥚",
+      "tint": "#fff1d6",
+      "badge": {
+        "label": "HEMAT",
+        "tone": "hemat"
+      },
+      "tags": [
+        "popular",
+        "ready"
+      ],
+      "variants": [
+        "10 butir",
+        "30 butir"
+      ],
+      "points": 26,
+      "sold": 70,
+      "desc": "Telur ayam negeri segar pilihan dengan kemasan higienis. Sumber protein lengkap untuk menu harian keluarga.",
+      "comp": "Telur ayam negeri segar.",
+      "cert": "Halal MUI, NKV."
+    },
+    {
+      "id": "sania-beras-5kg",
+      "name": "Sania Beras Premium Pulen 5kg",
+      "short": "Sania Beras Premium 5kg",
+      "brand": "SANIA",
+      "cat": "sembako",
+      "price": 74500,
+      "original": 79000,
+      "unit": "5kg",
+      "rating": 4.8,
+      "reviews": "850",
+      "emoji": "🍚",
+      "tint": "#e9f4e6",
+      "badge": {
+        "label": "TOP BRAND",
+        "tone": "top"
+      },
+      "tags": [
+        "popular",
+        "ready"
+      ],
+      "variants": [
+        "5kg",
+        "10kg"
+      ],
+      "points": 74,
+      "sold": 58,
+      "desc": "Beras premium dengan bulir utuh dan kadar air terkontrol. Tekstur pulen, wangi alami, dan cocok untuk semua masakan.",
+      "comp": "Beras putih premium.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "tehbotol-450",
+      "name": "Teh Botol Sosro Original 450ml",
+      "short": "Teh Botol Sosro 450ml",
+      "brand": "SOSRO",
+      "cat": "minuman",
+      "price": 5200,
+      "original": 6500,
+      "unit": "450ml",
+      "rating": 4.9,
+      "reviews": "3,4k",
+      "emoji": "🧋",
+      "tint": "#ffe0d6",
+      "badge": {
+        "label": "-20%",
+        "tone": "discount"
+      },
+      "tags": [
+        "flash",
+        "popular",
+        "ready"
+      ],
+      "variants": [
+        "450ml",
+        "1L"
+      ],
+      "points": 5,
+      "sold": 91,
+      "desc": "Teh melati siap minum dengan rasa manis yang pas dan aroma melati khas. Paling nikmat disajikan dingin.",
+      "comp": "Air, gula, teh, ekstrak melati, dan pengatur keasaman.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "chitato-68",
+      "name": "Chitato Sapi Panggang 68g",
+      "short": "Chitato Sapi Panggang 68g",
+      "brand": "CHITATO",
+      "cat": "snack",
+      "price": 10900,
+      "original": 10900,
+      "unit": "68g",
+      "rating": 4.9,
+      "reviews": "920",
+      "emoji": "🥔",
+      "tint": "#ffe9c9",
+      "badge": {
+        "label": "HARGA PAS",
+        "tone": "pas"
+      },
+      "tags": [
+        "popular",
+        "ready"
+      ],
+      "variants": [
+        "68g"
+      ],
+      "points": 10,
+      "sold": 66,
+      "desc": "Keripik kentang bergelombang dengan bumbu sapi panggang yang gurih dan smoky. Renyah di setiap gigitan.",
+      "comp": "Kentang, minyak nabati, bumbu sapi panggang, gula, dan garam.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "beras-ramos-5kg",
+      "name": "Beras Ramos Super Sak 5kg",
+      "short": "Beras Ramos Super 5kg",
+      "brand": "INDOMARET",
+      "cat": "sembako",
+      "price": 69500,
+      "original": 69500,
+      "unit": "5kg",
+      "rating": 4.8,
+      "reviews": "850",
+      "emoji": "🌾",
+      "tint": "#eef3e7",
+      "badge": {
+        "label": "OFFICIAL",
+        "tone": "official"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "5kg",
+        "10kg"
+      ],
+      "points": 69,
+      "sold": 48,
+      "desc": "Beras Ramos Super kemasan sak 5kg dari Indomaret. Bulir panjang, pulen, dan cocok untuk kebutuhan warung maupun rumah tangga.",
+      "comp": "Beras putih.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "gula-1kg",
+      "name": "Gula Pasir Tebu Kuning 1kg",
+      "short": "Gula Pasir Tebu 1kg",
+      "brand": "GULAKU",
+      "cat": "sembako",
+      "price": 17500,
+      "original": 17500,
+      "unit": "1kg",
+      "rating": 4.9,
+      "reviews": "2,4k",
+      "emoji": "🍬",
+      "tint": "#fff6d9",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "1kg",
+        "2kg"
+      ],
+      "points": 17,
+      "sold": 54,
+      "desc": "Gula pasir tebu kuning dengan butiran halus dan rasa manis alami. Mudah larut untuk minuman maupun masakan.",
+      "comp": "Gula tebu murni.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "mie-soto",
+      "name": "Mie Kuah Rasa Soto Gurih 75g",
+      "short": "Mie Kuah Rasa Soto 75g",
+      "brand": "MIE SEDAAP",
+      "cat": "sembako",
+      "price": 3000,
+      "original": 3000,
+      "unit": "75g",
+      "rating": 4.9,
+      "reviews": "4,1k",
+      "emoji": "🍲",
+      "tint": "#ffe6d2",
+      "badge": {
+        "label": "BELI 5 LEBIH MURAH",
+        "tone": "beli5"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "75g"
+      ],
+      "points": 3,
+      "sold": 73,
+      "desc": "Mie kuah rasa soto dengan kuah gurih dan aroma rempah yang hangat. Cocok untuk makan siang praktis.",
+      "comp": "Tepung terigu, minyak nabati, bumbu soto, dan rempah-rempah.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "bango-520",
+      "name": "Bango Kecap Manis Refill 520 ml",
+      "short": "Bango Kecap Manis 520ml",
+      "brand": "BANGO",
+      "cat": "sembako",
+      "price": 23900,
+      "original": 26500,
+      "unit": "520ml",
+      "rating": 4.9,
+      "reviews": "1,9k",
+      "emoji": "🍶",
+      "tint": "#f2e3d5",
+      "badge": {
+        "label": "DISKON 10%",
+        "tone": "discount"
+      },
+      "tags": [
+        "jsm",
+        "ready"
+      ],
+      "variants": [
+        "520ml",
+        "275ml"
+      ],
+      "points": 23,
+      "sold": 61,
+      "desc": "Kecap manis dari kedelai hitam pilihan dengan rasa manis legit dan aroma karamel. Teman wajib untuk masakan Indonesia.",
+      "comp": "Kedelai hitam, gula, air, garam, dan rempah.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "blueband-200",
+      "name": "Blue Band Serbaguna Margarin Sachet 200g",
+      "short": "Blue Band Serbaguna 200g",
+      "brand": "BLUE BAND",
+      "cat": "sembako",
+      "price": 9800,
+      "original": 9800,
+      "unit": "200g",
+      "rating": 4.8,
+      "reviews": "980",
+      "emoji": "🧈",
+      "tint": "#fff4c2",
+      "badge": {
+        "label": "OMEGA 3 & 6",
+        "tone": "omega"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "200g"
+      ],
+      "points": 9,
+      "sold": 39,
+      "desc": "Margarin serbaguna dengan omega 3 dan 6. Cocok untuk menumis, membuat kue, dan olesan roti.",
+      "comp": "Minyak nabati, air, garam, pengemulsi, vitamin A, dan omega 3 & 6.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "ultra-250",
+      "name": "Ultra Milk Susu UHT Cokelat 250ml",
+      "short": "Ultra Milk Cokelat 250ml",
+      "brand": "ULTRA",
+      "cat": "susu",
+      "price": 6800,
+      "original": 6800,
+      "unit": "250ml",
+      "rating": 4.8,
+      "reviews": "2,8rb",
+      "emoji": "🥛",
+      "tint": "#e8dcff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "250ml"
+      ],
+      "points": 6,
+      "sold": 45,
+      "desc": "Susu UHT cokelat kemasan praktis 250ml. Pas untuk bekal sekolah dan perjalanan.",
+      "comp": "Susu segar, gula, bubuk kakao, dan vitamin.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "indomie-ayam-5",
+      "name": "Indomie Kuah Rasa Ayam Bawang 5 pcs",
+      "short": "Indomie Ayam Bawang 5 pcs",
+      "brand": "INDOMIE",
+      "cat": "sembako",
+      "price": 15500,
+      "original": 15500,
+      "unit": "5 pcs",
+      "rating": 4.9,
+      "reviews": "5,2rb",
+      "emoji": "🍜",
+      "tint": "#ffe3d4",
+      "badge": {
+        "label": "BELI BANYAK LEBIH MURAH",
+        "tone": "beli5"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "5 pcs",
+        "1 pcs"
+      ],
+      "points": 15,
+      "sold": 77,
+      "desc": "Paket hemat 5 bungkus mi kuah rasa ayam bawang. Kuah kaldu ayam yang gurih dengan bawang goreng renyah.",
+      "comp": "Tepung terigu, minyak nabati, bumbu kaldu ayam, dan bawang goreng.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "bogasari-1kg",
+      "name": "Bogasari Terigu Segitiga Biru 1kg",
+      "short": "Terigu Segitiga Biru 1kg",
+      "brand": "BOGASARI",
+      "cat": "sembako",
+      "price": 13900,
+      "original": 13900,
+      "unit": "1kg",
+      "rating": 4.8,
+      "reviews": "1,1rb",
+      "emoji": "🌾",
+      "tint": "#eaf2ff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "1kg"
+      ],
+      "points": 13,
+      "sold": 41,
+      "desc": "Tepung terigu serbaguna untuk aneka kue, roti, dan gorengan. Tekstur halus dan mudah diolah.",
+      "comp": "Tepung terigu, vitamin B1, dan zat besi.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "dolpin-500",
+      "name": "Dolpin Garam Meja Beriodium 500g",
+      "short": "Dolpin Garam Meja 500g",
+      "brand": "DOLPIN",
+      "cat": "sembako",
+      "price": 6200,
+      "original": 6200,
+      "unit": "500g",
+      "rating": 4.9,
+      "reviews": "760",
+      "emoji": "🧂",
+      "tint": "#e9f2ff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "500g"
+      ],
+      "points": 6,
+      "sold": 36,
+      "desc": "Garam meja halus beriodium untuk penyedap masakan sehari-hari. Mudah larut dan tidak menggumpal.",
+      "comp": "Natrium klorida, kalium iodat.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "aqua-600",
+      "name": "Aqua Air Mineral 600ml",
+      "short": "Aqua Air Mineral 600ml",
+      "brand": "AQUA",
+      "cat": "minuman",
+      "price": 4500,
+      "original": 4500,
+      "unit": "600ml",
+      "rating": 4.9,
+      "reviews": "8,1rb",
+      "emoji": "💧",
+      "tint": "#dff1ff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "600ml",
+        "1500ml"
+      ],
+      "points": 4,
+      "sold": 88,
+      "desc": "Air mineral dari sumber mata air pegunungan yang disaring alami. Segar dan aman diminum setiap hari.",
+      "comp": "Air mineral alami.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "pepsodent-190",
+      "name": "Pepsodent Pencegah Gigi Berlubang 190g",
+      "short": "Pepsodent 190g",
+      "brand": "PEPSODENT",
+      "cat": "perawatan",
+      "price": 15900,
+      "original": 18500,
+      "unit": "190g",
+      "rating": 4.8,
+      "reviews": "1,4rb",
+      "emoji": "🪥",
+      "tint": "#e0f2ff",
+      "badge": {
+        "label": "DISKON 14%",
+        "tone": "discount"
+      },
+      "tags": [
+        "jsm",
+        "ready"
+      ],
+      "variants": [
+        "190g",
+        "120g"
+      ],
+      "points": 15,
+      "sold": 42,
+      "desc": "Pasta gigi dengan formula fluoride untuk membantu mencegah gigi berlubang dan menjaga napas segar.",
+      "comp": "Sorbitol, silika, natrium fluoride, dan perisa mint.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "sunlight-750",
+      "name": "Sunlight Jeruk Nipis 750ml",
+      "short": "Sunlight Jeruk Nipis 750ml",
+      "brand": "SUNLIGHT",
+      "cat": "rumah",
+      "price": 14500,
+      "original": 17000,
+      "unit": "750ml",
+      "rating": 4.9,
+      "reviews": "2,2rb",
+      "emoji": "🧽",
+      "tint": "#e2f7d9",
+      "badge": {
+        "label": "DISKON 15%",
+        "tone": "discount"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "750ml",
+        "1.5L"
+      ],
+      "points": 14,
+      "sold": 51,
+      "desc": "Sabun cuci piring dengan ekstrak jeruk nipis yang ampuh mengangkat lemak. Wangi segar dan lembut di tangan.",
+      "comp": "Surfaktan, ekstrak jeruk nipis, pewarna, dan parfum.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "oreo-133",
+      "name": "Oreo Vanila 133g",
+      "short": "Oreo Vanila 133g",
+      "brand": "OREO",
+      "cat": "snack",
+      "price": 8900,
+      "original": 8900,
+      "unit": "133g",
+      "rating": 4.8,
+      "reviews": "3,7rb",
+      "emoji": "🍪",
+      "tint": "#e6e8ff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "133g"
+      ],
+      "points": 8,
+      "sold": 64,
+      "desc": "Biskuit cokelat dengan krim vanila di tengahnya. Cocok untuk camilan santai bersama keluarga.",
+      "comp": "Tepung terigu, gula, minyak nabati, bubuk kakao, dan krim vanila.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "nescafe-200",
+      "name": "Nescafe Classic Kopi Instan 200g",
+      "short": "Nescafe Classic 200g",
+      "brand": "NESCAFE",
+      "cat": "minuman",
+      "price": 32500,
+      "original": 36000,
+      "unit": "200g",
+      "rating": 4.9,
+      "reviews": "1,6rb",
+      "emoji": "☕",
+      "tint": "#efe3d8",
+      "badge": {
+        "label": "DISKON 10%",
+        "tone": "discount"
+      },
+      "tags": [
+        "jsm",
+        "ready"
+      ],
+      "variants": [
+        "200g",
+        "100g"
+      ],
+      "points": 32,
+      "sold": 47,
+      "desc": "Kopi instan murni dengan aroma kuat dan rasa pekat. Tinggal seduh, nikmati kapan saja.",
+      "comp": "100% kopi instan.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "baygon-600",
+      "name": "Baygon Aerosol Serangga 600ml",
+      "short": "Baygon Aerosol 600ml",
+      "brand": "BAYGON",
+      "cat": "rumah",
+      "price": 27900,
+      "original": 31000,
+      "unit": "600ml",
+      "rating": 4.7,
+      "reviews": "640",
+      "emoji": "🦟",
+      "tint": "#e3f4ff",
+      "badge": {
+        "label": "DISKON 10%",
+        "tone": "discount"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "600ml"
+      ],
+      "points": 27,
+      "sold": 28,
+      "desc": "Insektisida aerosol untuk mengendalikan nyamuk dan serangga rumah. Wangi tidak menyengat.",
+      "comp": "Transfluthrin, propoxur, dan pelarut.",
+      "cert": "BPOM RI."
+    },
+    {
+      "id": "apel-1kg",
+      "name": "Apel Fuji Premium 1kg",
+      "short": "Apel Fuji Premium 1kg",
+      "brand": "FRESH",
+      "cat": "buah",
+      "price": 32000,
+      "original": 32000,
+      "unit": "1kg",
+      "rating": 4.8,
+      "reviews": "540",
+      "emoji": "🍎",
+      "tint": "#ffe0e0",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "1kg"
+      ],
+      "points": 32,
+      "sold": 33,
+      "desc": "Apel Fuji premium dengan daging renyah, manis, dan sedikit asam segar. Disimpan dalam suhu dingin agar tetap segar.",
+      "comp": "Apel Fuji segar.",
+      "cert": "NKV, Halal MUI."
+    },
+    {
+      "id": "bayam-ikat",
+      "name": "Bayam Segar 1 Ikat",
+      "short": "Bayam Segar 1 Ikat",
+      "brand": "FRESH",
+      "cat": "buah",
+      "price": 4500,
+      "original": 4500,
+      "unit": "1 ikat",
+      "rating": 4.7,
+      "reviews": "310",
+      "emoji": "🥬",
+      "tint": "#e3f6dc",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "1 ikat"
+      ],
+      "points": 4,
+      "sold": 25,
+      "desc": "Bayam hijau segar petikan pagi. Cocok untuk sayur bening, tumis, atau jus hijau.",
+      "comp": "Bayam segar.",
+      "cert": "NKV."
+    },
+    {
+      "id": "lifebuoy-75",
+      "name": "Lifebuoy Sabun Batang Total 10 75g",
+      "short": "Lifebuoy Sabun Batang 75g",
+      "brand": "LIFEBUOY",
+      "cat": "perawatan",
+      "price": 3800,
+      "original": 4500,
+      "unit": "75g",
+      "rating": 4.8,
+      "reviews": "1,8rb",
+      "emoji": "🧼",
+      "tint": "#ffe3e3",
+      "badge": {
+        "label": "DISKON 15%",
+        "tone": "discount"
+      },
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "75g"
+      ],
+      "points": 3,
+      "sold": 57,
+      "desc": "Sabun antibakteri dengan formula total 10 yang melindungi kulit dari kuman penyebab penyakit.",
+      "comp": "Sodium palmate, glycerin, parfum, dan zinc pyrithione.",
+      "cert": "BPOM RI, Halal MUI."
+    },
+    {
+      "id": "paseo-250",
+      "name": "Paseo Tissue Facial 250 Sheet",
+      "short": "Paseo Tissue 250 Sheet",
+      "brand": "PASEO",
+      "cat": "rumah",
+      "price": 12900,
+      "original": 12900,
+      "unit": "250 sheet",
+      "rating": 4.9,
+      "reviews": "2,6rb",
+      "emoji": "🧻",
+      "tint": "#eef4ff",
+      "badge": null,
+      "tags": [
+        "ready"
+      ],
+      "variants": [
+        "250 sheet"
+      ],
+      "points": 12,
+      "sold": 49,
+      "desc": "Tisu wajah lembut dengan tekstur emboss dan daya serap tinggi. Aman untuk kulit sensitif.",
+      "comp": "Pulp kayu murni.",
+      "cert": "BPOM RI, Halal MUI."
+    }
+  ],
+  "categories": [
+    {
+      "id": "sembako",
+      "name": "Minyak & Beras",
+      "icon": "🫗",
+      "tint": "#fff4c9",
+      "ink": "#b47a00"
+    },
+    {
+      "id": "susu",
+      "name": "Susu & Olahan",
+      "icon": "🥛",
+      "tint": "#ece4ff",
+      "ink": "#6c4bd1"
+    },
+    {
+      "id": "snack",
+      "name": "Snack & Biskuit",
+      "icon": "🍪",
+      "tint": "#ffe7d1",
+      "ink": "#c06512"
+    },
+    {
+      "id": "minuman",
+      "name": "Minuman Segar",
+      "icon": "🥤",
+      "tint": "#dceeff",
+      "ink": "#1f6fb2"
+    },
+    {
+      "id": "buah",
+      "name": "Buah & Sayur",
+      "icon": "🍎",
+      "tint": "#ffe3e3",
+      "ink": "#c03333"
+    },
+    {
+      "id": "perawatan",
+      "name": "Perawatan Diri",
+      "icon": "🧴",
+      "tint": "#ddf3ea",
+      "ink": "#1c7d5c"
+    },
+    {
+      "id": "rumah",
+      "name": "Kebutuhan Rumah",
+      "icon": "🧺",
+      "tint": "#e6ebff",
+      "ink": "#3a54b4"
+    },
+    {
+      "id": "promo",
+      "name": "Promo JSM",
+      "icon": "%",
+      "tint": "#ffe0e0",
+      "ink": "#d61f26",
+      "promo": true
+    }
+  ],
+  "vouchers": [
+    {
+      "code": "GAJIANHEMAT",
+      "title": "Diskon Gajian 40%",
+      "desc": "Maks. potongan Rp 40.000",
+      "min": 100000,
+      "tone": "blue"
+    },
+    {
+      "code": "GRATISONGKIR",
+      "title": "Gratis Ongkir Express",
+      "desc": "Hemat Rp 10.000 ongkos kirim",
+      "min": 50000,
+      "tone": "green"
+    },
+    {
+      "code": "NEWMEMBER",
+      "title": "Diskon Member Baru",
+      "desc": "Potongan Rp 15.000",
+      "min": 75000,
+      "tone": "amber"
+    },
+    {
+      "code": "SABTUMERIAH",
+      "title": "Sabtu Meriah",
+      "desc": "Diskon 30% maks. Rp 30.000 + gratis ongkir express",
+      "min": 100000,
+      "tone": "red"
+    }
+  ],
+  "stores": [
+    {
+      "id": "kemanggi-2",
+      "name": "Indomaret Kemanggi 2",
+      "address": "Jl. Kemanggi Ilir No. 12, Palembang",
+      "distance": "0.4 km",
+      "eta": "~45Mnt"
+    },
+    {
+      "id": "kemanggi-1",
+      "name": "Indomaret Kemanggi 1",
+      "address": "Jl. Kemanggi No. 8, Palembang",
+      "distance": "0.9 km",
+      "eta": "~55Mnt"
+    },
+    {
+      "id": "sudirman",
+      "name": "Indomaret Sudirman",
+      "address": "Jl. Jend. Sudirman No. 45, Palembang",
+      "distance": "1.6 km",
+      "eta": "~1 Jam"
+    }
+  ],
+  "addresses": [
+    {
+      "id": "rumah",
+      "label": "Rumah",
+      "detail": "Jl. Kebon Jeruk No. 12, Jakarta Barat",
+      "note": "Patokan: seberang masjid"
+    },
+    {
+      "id": "kantor",
+      "label": "Kantor",
+      "detail": "Jl. Jend. Sudirman Kav. 21, Jakarta Selatan",
+      "note": "Lantai 4, resepsionis"
+    }
+  ],
+  "banners": [
+    {
+      "code": "GAJIANHEMAT",
+      "title": "Diskon Heboh Gajian",
+      "desc": "Potongan s.d 40% produk dapur pilihan. Khusus hari ini!",
+      "tone": "blue",
+      "emoji": "🧺"
+    },
+    {
+      "code": "SABTUMERIAH",
+      "title": "Sabtu Meriah",
+      "desc": "Belanja s.d 30% lebih hemat + gratis ongkir express.",
+      "tone": "red",
+      "emoji": "🛵"
+    }
+  ],
+  "store": {
+    "name": "Indomaret Kemanggi 2",
+    "address": "Jl. Kemanggi Ilir No. 12, Palembang",
+    "distance": "0.4 km",
+    "eta": "~45Mnt",
+    "hours": "07.00–22.00 WIB"
+  }
+}

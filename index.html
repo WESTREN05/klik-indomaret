@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b3f8f">
+  <meta name="description" content="Klik Indomaret — belanja kebutuhan dapur, minuman, dan rumah tanpa antre. Pesan antar 1 jam atau ambil di toko.">
+  <title>Klik Indomaret — Belanja Tanpa Antre</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b3f8f'/%3E%3Cpath d='M20 24h24l2 26H18l2-26Z' fill='%23fff'/%3E%3Cpath d='M26 24a6 6 0 0 1 12 0' stroke='%23fff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home" data-header="main" data-active="home">
+  <div class="app">
+    <div id="appHeader"></div>
+
+    <main>
+      <section class="home-top" aria-label="Alamat dan pencarian">
+        <button class="address-card js-open-address" type="button">
+          <span class="address-card__pin" data-icon="pin"></span>
+          <span class="address-card__body">
+            <small>Dikirim ke:</small>
+            <strong class="js-address-text">Jl. Kebon Jeruk No. 12, Jakarta Barat</strong>
+          </span>
+          <span class="address-card__change">Ubah <span data-icon="chevronDown"></span></span>
+        </button>
+
+        <button class="store-strip js-open-store" type="button">
+          <span class="store-strip__bolt" data-icon="bolt"></span>
+          <span><strong class="js-store-name">Indomaret Kemanggi 2</strong> <em>· Estimasi <span class="js-store-eta">~45Mnt</span> (Express)</em></span>
+          <span data-icon="chevronRight"></span>
+        </button>
+
+        <form class="searchbox" id="homeSearch" role="search">
+          <span data-icon="search"></span>
+          <label class="sr-only" for="homeSearchInput">Cari produk</label>
+          <input id="homeSearchInput" type="search" placeholder="Cari susu UHT, minyak goreng, cemilan..." autocomplete="off">
+          <button class="searchbox__mic js-voice" type="button" aria-label="Cari dengan suara">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/></svg>
+          </button>
+        </form>
+
+        <div class="mode-toggle" role="group" aria-label="Metode pengiriman">
+          <button class="mode-btn is-active" type="button" data-mode="express">
+            <span data-icon="bolt"></span> Express 1 Jam
+          </button>
+          <button class="mode-btn" type="button" data-mode="pickup">
+            <span data-icon="store"></span> Ambil di Toko
+          </button>
+        </div>
+
+        <div class="saldo-card">
+          <div class="saldo-stats">
+            <div class="saldo-stat">
+              <small>Saldo</small>
+              <strong class="js-saldo">Rp 185.000</strong>
+            </div>
+            <div class="saldo-stat">
+              <small>Poinku</small>
+              <strong><span class="js-points">4.850</span> Poin</strong>
+            </div>
+            <div class="saldo-stat">
+              <small>Stamp</small>
+              <strong>12 Stamp</strong>
+            </div>
+          </div>
+          <div class="saldo-actions">
+            <button class="js-open-topup" type="button"><span data-icon="plus"></span> Top Up Saldo</button>
+            <button class="js-history" type="button"><span data-icon="clock"></span> Riwayat Transaksi</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="promo-carousel" id="promoCarousel" aria-label="Promo pilihan"></div>
+
+      <section class="section" aria-label="Kategori produk">
+        <div class="cat-grid" id="catGrid"></div>
+      </section>
+
+      <section class="section section--flush" aria-labelledby="flashTitle">
+        <div class="section-head section-head--flush">
+          <h2 class="section-title" id="flashTitle">
+            <span data-icon="flame"></span> Flash Sale
+            <span class="timer" id="flashTimer"><span data-icon="clock"></span><span id="flashClock">02:14:55</span></span>
+          </h2>
+          <a class="link-more" href="kategori.html?promo=1">Lihat Semua <span data-icon="chevronRight"></span></a>
+        </div>
+        <div class="flash-scroll" id="flashList"></div>
+      </section>
+
+      <section class="section" aria-labelledby="popularTitle">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="popularTitle">Paling Laris di Toko Terdekat</h2>
+            <p class="section-sub">Stok siap kirim dari <span class="js-store-name">Indomaret Kemanggi 2</span></p>
+          </div>
+          <a class="link-more" href="kategori.html?sort=popular"><span data-icon="filter"></span> Filter</a>
+        </div>
+        <div class="product-grid" id="popularGrid"></div>
+      </section>
+
+      <div class="guarantee">
+        <span class="guarantee__icon" data-icon="shield"></span>
+        <div>
+          <strong>Jaminan Pasti Asli &amp; Segar</strong>
+          <p>Produk dijamin asli langsung dari toko Indomaret terdekat dengan standar kualitas terjamin.</p>
+        </div>
+      </div>
+    </main>
+
+    <div id="appNav"></div>
+  </div>
+
+  <div class="toasts" aria-live="polite"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/sheets.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

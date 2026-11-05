@@ -57,6 +57,14 @@ document.addEventListener('click', (event) => {
   }
 });
 
+document.addEventListener('submit', (event) => {
+  const form = event.target.closest('[data-topbar-search]');
+  if (!form) return;
+  event.preventDefault();
+  const value = form.querySelector('input').value.trim();
+  location.href = value ? `kategori.html?q=${encodeURIComponent(value)}` : 'kategori.html';
+});
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeSheet();
 });

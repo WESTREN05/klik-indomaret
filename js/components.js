@@ -29,9 +29,15 @@ function topbarHTML(variant, title) {
       </div>
     </header>`;
   }
+  const query = new URLSearchParams(location.search).get('q') || '';
   return `<header class="topbar">
     <div class="topbar__inner">
       ${logoHTML()}
+      <form class="topbar__search" role="search" data-topbar-search>
+        ${ICON.search}
+        <input type="search" name="q" value="${escapeHtml(query)}" placeholder="Cari susu UHT, minyak goreng, cemilan..." aria-label="Cari produk" autocomplete="off">
+        <button type="submit">Cari</button>
+      </form>
       <div class="topbar__actions">
         <button class="iconbtn" data-action="search" aria-label="Cari produk">${ICON.search}</button>
         <button class="iconbtn" data-action="wishlist" aria-label="Wishlist">${ICON.heart}</button>

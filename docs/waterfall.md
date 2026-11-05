@@ -130,7 +130,7 @@ Melakukan perbaikan bug dan penyesuaian tampilan, misalnya:
 
 | Kode | Kebutuhan |
 | --- | --- |
-| NFR-01 | Tampilan mobile-first dengan lebar maksimal 480px |
+| NFR-01 | Tampilan mobile-first (maks. 480px), layout tablet ≥768px (shell 760px, grid 3 kolom), dan desktop ≥1024px (shell 1180px, navigasi atas, grid 3–4 kolom, keranjang dua kolom) |
 | NFR-02 | Navigasi konsisten melalui bottom navigation |
 | NFR-03 | Waktu muat cepat karena tidak memakai framework atau build step |
 | NFR-04 | Data tersimpan di PHP JSON dan tetap ada setelah refresh |

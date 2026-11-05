@@ -85,6 +85,8 @@ function renderCart() {
   const pointsBalance = getPoints();
 
   cartRoot.innerHTML = `
+    <div class="cart-layout">
+    <div class="cart-main">
     <div class="cart-head">
       <button class="address-card js-open-address" type="button">
         <span class="address-card__pin">${ICON.pin}</span>
@@ -192,7 +194,9 @@ function renderCart() {
           </div>`
         : ''
     }
+    </div>
 
+    <aside class="cart-side">
     <div class="summary">
       <h3>Rincian Pembayaran</h3>
       <div class="summary__row"><span>Total Harga (${t.jenis} Jenis, ${t.count} Barang)</span><span>${money(t.originalTotal)}</span></div>
@@ -219,6 +223,8 @@ function renderCart() {
         <span class="save">Hemat ${money(t.saving)}</span>
       </div>
       <button class="btn btn--primary" type="button" id="payBtn" ${someChecked ? '' : 'disabled'}>Bayar Sekarang ${ICON.arrowRight}</button>
+    </div>
+    </aside>
     </div>`;
 
   bindCart();

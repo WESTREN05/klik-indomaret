@@ -304,9 +304,12 @@ async function syncAccount() {
 }
 
 renderAkun();
-if (window.KlikApi?.isPhp() && getUser()) syncAccount();
+// Mode demo: session server baru dibuat setelah app.js menyelesaikan login,
+// jadi sinkronisasi awal dilewati agar tidak memicu 401 dan logout.
+if (window.KlikApi?.isPhp() && getUser() && !isDemoMode) syncAccount();
 
 document.addEventListener('auth:change', () => {
   renderAkun();
   mountChrome({ header: 'main', active: 'akun' });
+  if (isDemoMode && window.KlikApi?.isPhp() && getUser()) syncAccount();
 });

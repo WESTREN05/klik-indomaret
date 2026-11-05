@@ -275,7 +275,7 @@ Dokumentasi Waterfall yang lebih lengkap (latar belakang, kebutuhan fungsional/n
 - **Session:** cookie `klik_session`, password disimpan sebagai hash `password_hash`, bukan teks biasa.
 - **Keamanan:** ini prototype untuk tugas, bukan aplikasi produksi. Data JSON diblokir dari akses langsung lewat router dan `.htaccess`. Untuk produksi tetap perlu HTTPS, CSRF token, rate limiting, dan database relasional.
 - **Font:** Google Fonts (Plus Jakarta Sans). Tanpa internet, browser memakai font fallback.
-- **Desain responsif:** di layar lebar, app tetap di tengah dengan lebar maksimal 480px.
+- **Desain responsif:** ponsel memakai app shell maksimal 480px; tablet (≥768px) melebar ke 760px dengan grid 3 kolom; desktop (≥1024px) memakai shell 1180px, navigasi di atas, grid produk 3–4 kolom, keranjang dua kolom dengan ringkasan sticky, dan halaman login split-screen.
 
 ---
 

@@ -32,7 +32,7 @@ function createElement() {
   };
 }
 
-function createPromo() {
+function createPromo(claimed = ['SABTUMERIAH']) {
   const voucherList = createElement();
   const promoGrid = createElement();
   const documentStub = {
@@ -51,7 +51,7 @@ function createPromo() {
   };
 
   const data = new Map([
-    ['klik_claimed_v1', JSON.stringify(['SABTUMERIAH'])],
+    ['klik_claimed_v1', JSON.stringify(claimed)],
     ['klik_used_v1', JSON.stringify([])],
   ]);
   const localStorage = {
@@ -95,6 +95,8 @@ function createPromo() {
     fs.readFileSync(path.join(root, 'js', 'products.js'), 'utf8') +
     '\n' +
     fs.readFileSync(path.join(root, 'js', 'core.js'), 'utf8') +
+    '\n' +
+    fs.readFileSync(path.join(root, 'js', 'pricing.js'), 'utf8') +
     '\n' +
     fs.readFileSync(path.join(root, 'js', 'session.js'), 'utf8') +
     '\n' +
@@ -144,6 +146,32 @@ test('tombol Pakai menyimpan voucher pilihan', () => {
   });
 
   assert.strictEqual(localStorage.getItem('klik_active_voucher_v1'), JSON.stringify('SABTUMERIAH'));
+});
+
+test('tombol Pakai voucher express mengganti metode kirim ke express', () => {
+  const { voucherList, localStorage } = createPromo(['GRATISONGKIR']);
+  voucherList.handlers.click({
+    target: {
+      closest(sel) {
+        return sel === '[data-use]' ? { dataset: { use: 'GRATISONGKIR' } } : null;
+      },
+    },
+  });
+
+  assert.strictEqual(localStorage.getItem('klik_delivery_v1'), JSON.stringify('express'));
+});
+
+test('tombol Pakai voucher non-express tidak mengubah metode kirim', () => {
+  const { voucherList, localStorage } = createPromo(['NEWMEMBER']);
+  voucherList.handlers.click({
+    target: {
+      closest(sel) {
+        return sel === '[data-use]' ? { dataset: { use: 'NEWMEMBER' } } : null;
+      },
+    },
+  });
+
+  assert.strictEqual(localStorage.getItem('klik_delivery_v1'), null);
 });
 
 test('tombol Pakai membuka halaman keranjang', () => {

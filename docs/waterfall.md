@@ -539,7 +539,7 @@ Total tagihan         Rp 119.500
 Manual:
 
 ```powershell
-cd C:\klik-indomaret
+cd D:\klik-indomaret
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start-php.ps1
 ```
 

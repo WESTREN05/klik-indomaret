@@ -20,7 +20,7 @@ Tampilan mobile-first dengan app shell selebar maksimal **480px**, terdiri dari 
 
 ## Cara menjalankan (PHP + VS Code) — disarankan
 
-1. Buka folder `C:\klik-indomaret` di VS Code.
+1. Buka folder `D:\klik-indomaret` di VS Code.
 2. Tekan `Ctrl+Shift+B`, atau buka **Terminal → Run Task → Klik Indomaret: Start PHP Server**.
 3. Buka `http://127.0.0.1:8000/` di browser.
 4. Cek backend di `http://127.0.0.1:8000/api/health.php`.
@@ -30,7 +30,7 @@ Task VS Code menjalankan `start-php.ps1`. Script itu mencari PHP dari `PATH`, La
 ### Manual lewat terminal
 
 ```powershell
-cd C:\klik-indomaret
+cd D:\klik-indomaret
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start-php.ps1
 ```
 
@@ -53,7 +53,7 @@ C:\laragon\bin\php\php-8.2.21-nts-Win32-vs16-x64\php.exe
 Selalu jalankan project lewat router PHP:
 
 ```powershell
-cd C:\klik-indomaret
+cd D:\klik-indomaret
 php -S localhost:8000 router.php
 ```
 
@@ -224,7 +224,7 @@ klik-indomaret/
 │   ├── test-session.js             # 12 kasus uji logout, voucher, saldo/poin
 │   ├── test-api.js                 # 10 kasus uji klasifikasi error API
 │   ├── test-page.js                # 3 kasus uji bootstrap localStorage
-│   ├── test-promo.js               # 4 kasus uji tombol Pakai voucher
+│   ├── test-promo.js               # 6 kasus uji tombol Pakai voucher
 │   ├── test-voucher.php            # 7 kasus uji voucher sekali pakai (server)
 │   ├── test-store.php              # 6 kasus uji lock + update JSON atomik
 │   ├── test-order.php              # 10 kasus uji merge item & maxQty
@@ -328,7 +328,7 @@ npm run check
 - `tools/test-store.php` — 6 kasus uji lock reentrant, mutual exclusion antar-proses, dan update JSON atomik (butuh PHP CLI).
 - `tools/test-order.php` — 10 kasus uji penggabungan item dan batas `maxQty` (butuh PHP CLI).
 - `tools/test-page.js` — 3 kasus uji skrip bootstrap: cache akun dibersihkan saat session habis, sedangkan keranjang dipertahankan.
-- `tools/test-promo.js` — 4 kasus uji tombol Pakai: voucher terklaim tersimpan sebagai pilihan dan membuka halaman keranjang.
+- `tools/test-promo.js` — 6 kasus uji tombol Pakai: voucher terklaim tersimpan sebagai pilihan, voucher khusus antar otomatis memilih metode express, dan tombol membuka halaman keranjang.
 - ESLint untuk `js/` dan `tools/`.
 - Stylelint untuk `css/`.
 

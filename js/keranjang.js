@@ -5,7 +5,13 @@ const cartRoot = $('#cartRoot');
 let delivery = Store.get(KEY.delivery, 'express');
 let usePoints = false;
 const savedVoucher = getPreferredVoucher();
-let activeVoucher = savedVoucher && isClaimed(savedVoucher) && !isVoucherUsed(savedVoucher) ? savedVoucher : null;
+const savedVoucherUsable = Boolean(
+  savedVoucher &&
+    isClaimed(savedVoucher) &&
+    !isVoucherUsed(savedVoucher) &&
+    (!KlikPricing.requiresExpress(savedVoucher) || delivery === 'express')
+);
+let activeVoucher = savedVoucherUsable ? savedVoucher : null;
 if (!activeVoucher) {
   setPreferredVoucher(null);
   if (delivery === 'express' && isClaimed('GRATISONGKIR') && !isVoucherUsed('GRATISONGKIR')) activeVoucher = 'GRATISONGKIR';

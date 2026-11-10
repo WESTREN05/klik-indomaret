@@ -57,7 +57,11 @@ function initPromo() {
   $('#voucherList').addEventListener('click', async (event) => {
     const useBtn = event.target.closest('[data-use]');
     if (useBtn) {
-      setPreferredVoucher(useBtn.dataset.use);
+      const code = useBtn.dataset.use;
+      // Voucher khusus antar tidak bisa dipakai saat ambil di toko, jadi
+      // pilih metode antar sekalian agar diskonnya langsung berlaku.
+      if (KlikPricing.requiresExpress(code)) Store.set(KEY.delivery, 'express');
+      setPreferredVoucher(code);
       location.href = 'keranjang.html';
       return;
     }

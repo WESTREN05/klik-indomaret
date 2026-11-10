@@ -40,10 +40,15 @@ function createSession({ phpMode = false } = {}) {
   const calls = { logout: 0 };
   const sandbox = {
     localStorage: createLocalStorage(),
-    location: { search: '' },
+    location: { search: '', href: '' },
     document: { addEventListener() {} },
     URLSearchParams,
     console,
+    toast() {},
+    setTimeout() {
+      return 0;
+    },
+    updateSaldoUI() {},
     window: {
       KlikApi: {
         isPhp: () => phpMode,
@@ -61,7 +66,9 @@ function createSession({ phpMode = false } = {}) {
     fs.readFileSync(path.join(root, 'js', 'core.js'), 'utf8') +
     '\n' +
     fs.readFileSync(path.join(root, 'js', 'session.js'), 'utf8') +
-    '\n;globalThis.__SESSION__ = { Store, KEY, logout, getAddress, getStoreData, getUsed, isVoucherUsed, applyVoucherState };';
+    '\n' +
+    fs.readFileSync(path.join(root, 'js', 'login-auth.js'), 'utf8') +
+    '\n;globalThis.__SESSION__ = { Store, KEY, logout, getAddress, getStoreData, getUsed, isVoucherUsed, applyVoucherState, applyUserSession, getSaldo, getPoints, getPreferredVoucher, setPreferredVoucher, KlikLoginAuth };';
 
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: 'js/session.js' });
@@ -84,6 +91,7 @@ function seedAccount(session) {
   Store.set(KEY.points, 4969);
   Store.set(KEY.claimed, ['SABTUMERIAH']);
   Store.set(KEY.used, ['SABTUMERIAH']);
+  Store.set(KEY.activeVoucher, 'SABTUMERIAH');
   Store.set(KEY.cart, [{ id: 'sania-2l', qty: 1, variant: 'Pouch 2L' }]);
   Store.set(KEY.delivery, 'express');
 }
@@ -123,6 +131,63 @@ test('applyVoucherState tidak menghapus cache saat field tidak dikirim', () => {
   assert.strictEqual(JSON.stringify(session.getUsed()), '["SABTUMERIAH"]');
 });
 
+/* ---- Voucher pilihan lintas halaman ---- */
+
+test('setPreferredVoucher menyimpan dan menghapus pilihan voucher', () => {
+  const session = createSession();
+  session.setPreferredVoucher('SABTUMERIAH');
+
+  assert.strictEqual(session.getPreferredVoucher(), 'SABTUMERIAH');
+  assert.strictEqual(session.localStorage.getItem(session.KEY.activeVoucher), JSON.stringify('SABTUMERIAH'));
+
+  session.setPreferredVoucher(null);
+  assert.strictEqual(session.getPreferredVoucher(), null);
+  assert.strictEqual(session.localStorage.getItem(session.KEY.activeVoucher), null);
+});
+
+/* ---- Sinkronisasi saldo/poin ---- */
+
+test('applyUserSession memakai saldo/poin server walau cache sudah terisi', () => {
+  const session = createSession();
+  session.Store.set(session.KEY.saldo, 1000);
+  session.Store.set(session.KEY.points, 10);
+  session.applyUserSession({ id: 1, name: 'Bagas Pratama', saldo: 185000, points: 4850 });
+
+  assert.strictEqual(session.getSaldo(), 185000);
+  assert.strictEqual(session.getPoints(), 4850);
+});
+
+test('finishAuth tidak menimpa saldo/poin cache yang sudah terisi', () => {
+  const session = createSession();
+  session.Store.set(session.KEY.saldo, 200000);
+  session.Store.set(session.KEY.points, 5000);
+  session.KlikLoginAuth.finishAuth({ id: 1, name: 'Bagas Pratama', phone: '081234567890' }, null);
+
+  assert.strictEqual(session.getSaldo(), 200000);
+  assert.strictEqual(session.getPoints(), 5000);
+});
+
+test('finishAuth memakai saldo/poin server walau cache terisi', () => {
+  const session = createSession();
+  session.Store.set(session.KEY.saldo, 1000);
+  session.Store.set(session.KEY.points, 10);
+  session.KlikLoginAuth.finishAuth(
+    { id: 1, name: 'Bagas Pratama', phone: '081234567890', saldo: 185000, points: 4850 },
+    null
+  );
+
+  assert.strictEqual(session.getSaldo(), 185000);
+  assert.strictEqual(session.getPoints(), 4850);
+});
+
+test('finishAuth mengisi saldo/poin demo saat cache kosong', () => {
+  const session = createSession();
+  session.KlikLoginAuth.finishAuth({ id: 1, name: 'Bagas Pratama', phone: '081234567890' }, null);
+
+  assert.strictEqual(session.getSaldo(), 185000);
+  assert.strictEqual(session.getPoints(), 4850);
+});
+
 /* ---- Logout ---- */
 
 test('logout menghapus data akun, alamat, toko, dan status voucher', () => {
@@ -140,6 +205,7 @@ test('logout menghapus data akun, alamat, toko, dan status voucher', () => {
     session.KEY.points,
     session.KEY.claimed,
     session.KEY.used,
+    session.KEY.activeVoucher,
   ]) {
     assert.strictEqual(session.localStorage.getItem(key), null, `${key} masih tersimpan`);
   }

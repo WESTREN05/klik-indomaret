@@ -75,6 +75,7 @@ async function test(name, fn) {
 
     assert.strictEqual(error.status, 500);
     assert.strictEqual(error.offline, false);
+    assert.strictEqual(error.message, 'Terjadi kesalahan pada server. Coba lagi nanti.');
   });
 
   await test('HTML 503 bukan mode offline', async () => {
@@ -83,6 +84,7 @@ async function test(name, fn) {
 
     assert.strictEqual(error.status, 503);
     assert.strictEqual(error.offline, false);
+    assert.strictEqual(error.message, 'Terjadi kesalahan pada server. Coba lagi nanti.');
   });
 
   await test('JSON 500 memakai pesan server dan bukan mode offline', async () => {
@@ -94,12 +96,37 @@ async function test(name, fn) {
     assert.strictEqual(error.message, 'Gagal menyimpan.');
   });
 
+  await test('JSON 422 memakai pesan server', async () => {
+    const api = createApi(async () => response(422, JSON.stringify({ ok: false, error: 'Keranjang masih kosong.' })));
+    const error = await expectError(api.request('orders.php'));
+
+    assert.strictEqual(error.status, 422);
+    assert.strictEqual(error.message, 'Keranjang masih kosong.');
+  });
+
   await test('HTML 404 dari server statis tetap mode offline', async () => {
     const api = createApi(async () => response(404, '<html><body>Not found</body></html>'));
     const error = await expectError(api.request('health.php'));
 
     assert.strictEqual(error.status, 404);
     assert.strictEqual(error.offline, true);
+    assert.strictEqual(error.message, 'Terjadi kesalahan pada server. Coba lagi nanti.');
+  });
+
+  await test('respons teks biasa tidak dipakai sebagai pesan error', async () => {
+    const api = createApi(async () => response(502, 'Bad gateway'));
+    const error = await expectError(api.request('health.php'));
+
+    assert.strictEqual(error.status, 502);
+    assert.strictEqual(error.message, 'Terjadi kesalahan pada server. Coba lagi nanti.');
+  });
+
+  await test('respons kosong memakai pesan status', async () => {
+    const api = createApi(async () => response(500, ''));
+    const error = await expectError(api.request('profile.php'));
+
+    assert.strictEqual(error.status, 500);
+    assert.strictEqual(error.message, 'Permintaan gagal (500).');
   });
 
   await test('HTML 405/501 dari server statis tetap mode offline', async () => {
@@ -118,6 +145,7 @@ async function test(name, fn) {
 
     assert.strictEqual(error.status, 401);
     assert.strictEqual(error.offline, false);
+    assert.strictEqual(error.message, 'Terjadi kesalahan pada server. Coba lagi nanti.');
   });
 
   await test('kegagalan jaringan tetap mode offline', async () => {

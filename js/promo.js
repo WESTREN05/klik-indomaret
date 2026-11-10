@@ -6,6 +6,11 @@ function renderVouchers() {
   $('#voucherList').innerHTML = VOUCHERS.map((voucher) => {
     const claimed = isClaimed(voucher.code);
     const used = isVoucherUsed(voucher.code);
+    const action = used
+      ? `<button class="btn btn--ghost" type="button" disabled>Sudah dipakai</button>`
+      : claimed
+        ? `<button class="btn btn--primary" type="button" data-use="${voucher.code}">Pakai</button>`
+        : `<button class="btn btn--primary" type="button" data-claim="${voucher.code}">Klaim</button>`;
     return `<article class="voucher-card voucher-card--${voucher.tone}">
       <div class="voucher-card__left">
         <strong>${voucher.value}</strong>
@@ -20,9 +25,7 @@ function renderVouchers() {
           <ul>${(voucher.terms || []).map((term) => `<li>${escapeHtml(term)}</li>`).join('')}</ul>
         </details>
       </div>
-      <button class="btn ${claimed || used ? 'btn--ghost' : 'btn--primary'}" type="button" data-claim="${voucher.code}" ${claimed || used ? 'disabled' : ''}>
-        ${used ? 'Sudah dipakai' : claimed ? 'Diklaim' : 'Klaim'}
-      </button>
+      ${action}
     </article>`;
   }).join('');
 }
@@ -52,13 +55,20 @@ function initPromo() {
   renderPromoGrid();
 
   $('#voucherList').addEventListener('click', async (event) => {
+    const useBtn = event.target.closest('[data-use]');
+    if (useBtn) {
+      setPreferredVoucher(useBtn.dataset.use);
+      location.href = 'keranjang.html';
+      return;
+    }
+
     const btn = event.target.closest('[data-claim]');
     if (!btn || btn.disabled) return;
     const ok = await claimVoucher(btn.dataset.claim);
     if (!ok) return;
     voucherSyncToken += 1;
     renderVouchers();
-    toast(`Voucher ${btn.dataset.claim} berhasil diklaim. Pakai saat checkout ya.`, 'success');
+    toast(`Voucher ${btn.dataset.claim} berhasil diklaim. Tekan Pakai untuk memakainya.`, 'success');
   });
 
   document.addEventListener('cart:change', renderPromoGrid);

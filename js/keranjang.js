@@ -4,8 +4,12 @@ const cartRoot = $('#cartRoot');
 
 let delivery = Store.get(KEY.delivery, 'express');
 let usePoints = false;
-let activeVoucher =
-  delivery === 'express' && isClaimed('GRATISONGKIR') && !isVoucherUsed('GRATISONGKIR') ? 'GRATISONGKIR' : null;
+const savedVoucher = getPreferredVoucher();
+let activeVoucher = savedVoucher && isClaimed(savedVoucher) && !isVoucherUsed(savedVoucher) ? savedVoucher : null;
+if (!activeVoucher) {
+  setPreferredVoucher(null);
+  if (delivery === 'express' && isClaimed('GRATISONGKIR') && !isVoucherUsed('GRATISONGKIR')) activeVoucher = 'GRATISONGKIR';
+}
 const selected = new Set(getCart().map(cartKey));
 
 const catName = (id) => CATEGORIES.find((cat) => cat.id === id)?.name || 'Produk';
@@ -46,6 +50,7 @@ const KlikCart = {
   },
   setActiveVoucher(code) {
     activeVoucher = code || null;
+    setPreferredVoucher(activeVoucher);
   },
   getTotals: () => totals(),
   getCheckedItems: () => checkedItems(),
@@ -271,7 +276,7 @@ function bindCart() {
     btn.addEventListener('click', () => {
       delivery = btn.dataset.delivery;
       Store.set(KEY.delivery, delivery);
-      if (delivery === 'pickup' && KlikPricing.requiresExpress(activeVoucher)) activeVoucher = null;
+      if (delivery === 'pickup' && KlikPricing.requiresExpress(activeVoucher)) KlikCart.setActiveVoucher(null);
       else if (
         delivery === 'express' &&
         !activeVoucher &&
@@ -282,7 +287,7 @@ function bindCart() {
           used: getUsed(),
         })
       ) {
-        activeVoucher = 'GRATISONGKIR';
+        KlikCart.setActiveVoucher('GRATISONGKIR');
       }
       renderCart();
     });

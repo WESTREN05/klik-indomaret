@@ -5,8 +5,15 @@ const KlikLoginAuth = (() => {
 
   function finishAuth(user, button) {
     applyUserSession(user);
-    if (typeof user.saldo !== 'number' && user.phone === '081234567890') setSaldo(185000);
-    if (typeof user.points !== 'number' && user.phone === '081234567890') setPoints(4850);
+    // Data server (kalau dikirim) sudah menimpa cache lewat applyUserSession.
+    // Default demo hanya mengisi cache yang masih kosong, supaya saldo/poin
+    // dari server tidak tertimpa angka demo saat localStorage sudah terisi.
+    if (typeof user.saldo !== 'number' && user.phone === '081234567890' && Store.get(KEY.saldo, null) === null) {
+      setSaldo(185000);
+    }
+    if (typeof user.points !== 'number' && user.phone === '081234567890' && Store.get(KEY.points, null) === null) {
+      setPoints(4850);
+    }
     if (button) {
       button.disabled = true;
       button.textContent = 'Memproses...';
@@ -112,5 +119,5 @@ const KlikLoginAuth = (() => {
     if (registerForm) registerForm.addEventListener('submit', submitRegister);
   }
 
-  return { bind };
+  return { bind, finishAuth };
 })();

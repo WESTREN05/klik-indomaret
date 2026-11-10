@@ -14,6 +14,7 @@ const KEY = {
   vouchers: 'klik_vouchers_v1',
   claimed: 'klik_claimed_v1',
   used: 'klik_used_v1',
+  activeVoucher: 'klik_active_voucher_v1',
   delivery: 'klik_delivery_v1',
 };
 

@@ -66,15 +66,15 @@ const KlikApi = (() => {
       data = text ? JSON.parse(text) : null;
     } catch (error) {
       isJson = false;
-      data = { ok: false, error: text || 'Respons server tidak valid.' };
     }
 
     if (!response.ok || (data && data.ok === false)) {
-      const apiError = new ApiError(
-        (data && data.error) || `Permintaan gagal (${response.status}).`,
-        response.status,
-        data
-      );
+      const serverMessage = isJson && data && typeof data.error === 'string' ? data.error.trim() : '';
+      const message = serverMessage
+        || (isJson
+          ? `Permintaan gagal (${response.status}).`
+          : 'Terjadi kesalahan pada server. Coba lagi nanti.');
+      const apiError = new ApiError(message, response.status, data);
       // Server statis (Python/Live Server) membalas HTML 404/405/501 karena
       // endpoint PHP tidak ada. Hanya status itu yang dianggap API tidak
       // tersedia; HTML 500 dari PHP adalah error server sungguhan.

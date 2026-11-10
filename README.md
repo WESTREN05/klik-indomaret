@@ -89,10 +89,10 @@ Isi keranjang demo: Sania Minyak Goreng 2L ×1, Ultra Milk 1L ×2, Indomie Ayam 
 - **Beranda:** banner promo, kategori, flash sale dengan countdown, produk populer, pencarian, top up saldo, ganti alamat/toko.
 - **Katalog:** pencarian real-time, filter harga min/max, urutan (terpopuler, harga, rating), filter promo JSM & ready, cart bar.
 - **Detail produk:** pilih varian, pilih express/ambil di toko, ganti toko, galeri warna, tab informasi, wishlist, share, tambah ke keranjang, beli sekarang.
-- **Keranjang:** pilih semua/sebagian, stepper jumlah, hapus item, ganti alamat/toko, voucher (Gratis Ongkir, Diskon Gajian 40%, Member Baru), tukar poin, ringkasan diskon, metode pembayaran QRIS/Transfer/COD, halaman sukses.
+- **Keranjang:** pilih semua/sebagian, stepper jumlah, hapus item, ganti alamat/toko, empat voucher (Gratis Ongkir, Diskon Gajian 40%, Member Baru, Sabtu Meriah), tukar poin, ringkasan diskon, metode pembayaran QRIS/Transfer/COD, halaman sukses.
 - **Auth:** login, register dengan validasi, lupa password (mock), show/hide password, session PHP, redirect ke halaman tujuan.
 - **Akun:** edit profil, riwayat pesanan dari server, pengaturan, bantuan, tentang aplikasi, logout tanpa menghapus keranjang.
-- **Promo:** klaim voucher, status klaim tersimpan di server (atau `localStorage` saat mode statis), grid produk promo.
+- **Promo:** klaim voucher, tombol **Pakai** untuk langsung menerapkan voucher yang sudah diklaim ke keranjang, status klaim tersimpan di server (atau `localStorage` saat mode statis), grid produk promo.
 - **Checkout server-side:** total pesanan, diskon voucher, ongkir, poin, dan poin yang didapat dihitung ulang oleh PHP.
 - **Top up saldo:** saldo tersimpan di akun PHP saat server aktif.
 
@@ -169,6 +169,7 @@ klik-indomaret/
 │   ├── page.php
 │   ├── lib/
 │   │   ├── store.php
+│   │   ├── page-boot.php           # skrip bootstrap localStorage
 │   │   ├── auth.php
 │   │   ├── catalog.php
 │   │   └── order.php
@@ -220,9 +221,13 @@ klik-indomaret/
 │   ├── check-catalog.js            # cek ID, harga, varian, voucher vs catalog.json
 │   ├── check-images.js             # cek nama/format + kelengkapan foto produk
 │   ├── test-pricing.js             # 19 kasus uji total, voucher, ongkir, poin
-│   ├── test-session.js             # 7 kasus uji logout dan status voucher
-│   ├── test-api.js                 # 7 kasus uji klasifikasi error API
+│   ├── test-session.js             # 12 kasus uji logout, voucher, saldo/poin
+│   ├── test-api.js                 # 10 kasus uji klasifikasi error API
+│   ├── test-page.js                # 3 kasus uji bootstrap localStorage
+│   ├── test-promo.js               # 4 kasus uji tombol Pakai voucher
 │   ├── test-voucher.php            # 7 kasus uji voucher sekali pakai (server)
+│   ├── test-store.php              # 6 kasus uji lock + update JSON atomik
+│   ├── test-order.php              # 10 kasus uji merge item & maxQty
 │   └── reset-demo.php              # reset akun demo + pesanan + klaim voucher
 ├── assets/
 │   └── products/                   # tempat foto produk (lihat di bawah)
@@ -317,9 +322,13 @@ npm run check
 - `tools/check-catalog.js` — memastikan ID/kode, harga, varian, dan aturan voucher di `js/data.js` + `js/products.js` cocok dengan `php/data/catalog.json`. Jika beda, jalankan `npm run build:catalog`.
 - `tools/check-images.js` — memastikan foto yang ada memakai `<id>.jpg` huruf kecil; foto yang belum ada dilaporkan sebagai INFO.
 - `tools/test-pricing.js` — 19 kasus uji total, voucher, ongkir, dan poin (angka demo di `docs/waterfall.md`).
-- `tools/test-session.js` — 7 kasus uji status voucher, pembersihan data saat logout, dan keranjang yang dipertahankan.
-- `tools/test-api.js` — 7 kasus uji klasifikasi error API: HTML 5xx bukan mode offline, sedangkan endpoint yang tidak ada di server statis tetap offline.
+- `tools/test-session.js` — 12 kasus uji status voucher, voucher pilihan lintas halaman, pembersihan data saat logout, keranjang yang dipertahankan, dan sinkronisasi saldo/poin dari server.
+- `tools/test-api.js` — 10 kasus uji klasifikasi error API: HTML/non-JSON memakai pesan ramah, pesan JSON tetap dipakai, dan HTML 5xx bukan mode offline.
 - `tools/test-voucher.php` — 7 kasus uji aturan voucher sekali pakai di server memakai fixture, tanpa menyentuh `php/data` (butuh PHP CLI).
+- `tools/test-store.php` — 6 kasus uji lock reentrant, mutual exclusion antar-proses, dan update JSON atomik (butuh PHP CLI).
+- `tools/test-order.php` — 10 kasus uji penggabungan item dan batas `maxQty` (butuh PHP CLI).
+- `tools/test-page.js` — 3 kasus uji skrip bootstrap: cache akun dibersihkan saat session habis, sedangkan keranjang dipertahankan.
+- `tools/test-promo.js` — 4 kasus uji tombol Pakai: voucher terklaim tersimpan sebagai pilihan dan membuka halaman keranjang.
 - ESLint untuk `js/` dan `tools/`.
 - Stylelint untuk `css/`.
 
@@ -346,6 +355,17 @@ Project ini disusun mengikuti tahapan Waterfall:
 5. **Pemeliharaan** — perbaikan bug, penyesuaian UI, reset data, dan penyiapan dokumentasi.
 
 Dokumentasi Waterfall yang lebih lengkap (latar belakang, kebutuhan fungsional/non-fungsional, rancangan, pengujian, kesimpulan) tersedia di [`docs/waterfall.md`](docs/waterfall.md). Isi bagian identitas (nama, NIM, mata kuliah, dosen) sebelum dikumpulkan.
+
+---
+
+## Keterbatasan yang diketahui
+
+Prototype ini dibuat untuk tugas kuliah, bukan untuk produksi. Keterbatasan yang masih ada:
+
+- **Tanpa CSRF token:** endpoint yang mengubah data mengandalkan cookie session tanpa token anti-CSRF.
+- **Tanpa rate limiting:** percobaan login, klaim voucher, dan checkout belum dibatasi jumlahnya.
+- **Penyimpanan JSON hanya untuk demo:** `php/data/*.json` mudah dibaca/ditulis dan tidak cocok untuk data produksi berskala besar; gunakan database relasional untuk produksi.
+- **Belum ada tes end-to-end:** pengujian otomatis saat ini berupa unit test JS/PHP dan pemeriksaan data; alur browser lengkap masih diuji manual.
 
 ---
 

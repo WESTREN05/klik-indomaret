@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/lib/page-boot.php';
 
 /**
  * Render halaman HTML yang sudah ada, lalu suntikkan data session PHP
@@ -54,26 +55,7 @@ function klik_page(string $template): void
         'used' => $user !== null ? klik_used_codes((int) $user['id']) : [],
     ];
 
-    $json = json_encode(
-        $bootstrap,
-        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-    );
-
-    $script = '<script>(function(){var boot=' . $json . ';window.KLIK_BOOTSTRAP=boot;'
-        . 'try{'
-        // Cache pesanan hanya dibuang saat tidak ada user. Saat user login,
-        // akun.js akan menggantinya setelah sinkronisasi server berhasil.
-        . 'if(!boot.user)localStorage.removeItem("klik_orders_v1");'
-        . 'if(boot.user){localStorage.setItem("klik_user_v1",JSON.stringify(boot.user));'
-        . 'if(typeof boot.user.saldo==="number")localStorage.setItem("klik_saldo_v1",JSON.stringify(boot.user.saldo));'
-        . 'if(typeof boot.user.points==="number")localStorage.setItem("klik_points_v1",JSON.stringify(boot.user.points));'
-        . '}else{localStorage.removeItem("klik_user_v1");'
-        . 'localStorage.removeItem("klik_saldo_v1");'
-        . 'localStorage.removeItem("klik_points_v1");}'
-        . 'if(Array.isArray(boot.claimed))localStorage.setItem("klik_claimed_v1",JSON.stringify(boot.claimed));'
-        . 'if(Array.isArray(boot.used))localStorage.setItem("klik_used_v1",JSON.stringify(boot.used));'
-        . '}catch(e){}'
-        . '})();</script>';
+    $script = klik_page_bootstrap_script($bootstrap);
 
     $needle = '<script src="js/data.js"></script>';
     if (str_contains($html, $needle)) {

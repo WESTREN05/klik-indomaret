@@ -19,6 +19,7 @@ const logout = () => {
   Store.remove(KEY.orders);
   Store.remove(KEY.claimed);
   Store.remove(KEY.used);
+  Store.remove(KEY.activeVoucher);
   Store.remove(KEY.address);
   Store.remove(KEY.store);
   Store.remove(KEY.saldo);
@@ -52,6 +53,13 @@ const setPoints = (value) => Store.set(KEY.points, value);
 const getClaimed = () => Store.get(KEY.claimed, []);
 const getUsed = () => Store.get(KEY.used, []);
 const isVoucherUsed = (code) => getUsed().includes(code);
+
+// Voucher pilihan dipakai lintas halaman (mis. tombol Pakai di halaman Promo).
+const getPreferredVoucher = () => Store.get(KEY.activeVoucher, null);
+const setPreferredVoucher = (code) => {
+  if (code) Store.set(KEY.activeVoucher, code);
+  else Store.remove(KEY.activeVoucher);
+};
 
 /** Simpan status voucher (diklaim + sudah dipakai) dari respons server. */
 function applyVoucherState(result) {

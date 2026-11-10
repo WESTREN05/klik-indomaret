@@ -1,137 +1,6 @@
-/* akun.js — profil, riwayat pesanan, dan pengaturan akun */
+/* akun.js — orkestrasi halaman akun, menu, dan sinkronisasi sesi */
 
 const akunRoot = $('#akunRoot');
-
-function formatDate(iso) {
-  try {
-    return new Intl.DateTimeFormat('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(iso));
-  } catch (err) {
-    return 'Baru saja';
-  }
-}
-
-function orderCardHTML(order) {
-  const first = order.items[0] || { name: 'Pesanan', qty: 1, emoji: '🛒', tint: '#eef2f8', id: '' };
-  const more = order.items.length > 1 ? `+${order.items.length - 1} produk lain` : `${first.qty}x`;
-  return `<article class="order-card">
-    <div class="order-card__head">
-      <span>${formatDate(order.date)}</span>
-      <span class="order-card__status">${order.status || 'Diproses'}</span>
-    </div>
-    <div class="order-card__body">
-      ${artHTML({ id: first.id, name: first.name, emoji: first.emoji, tint: first.tint })}
-      <div>
-        <strong>${first.name}</strong>
-        <small>${more}</small>
-        <small>${order.method} · Estimasi ${order.eta}</small>
-      </div>
-      <span class="order-card__total">${money(order.total)}</span>
-    </div>
-  </article>`;
-}
-
-function openEditProfile() {
-  const user = getUser();
-  if (!user) return;
-  const wrap = openSheet({
-    title: 'Edit profil',
-    body: `<form id="editProfileForm">
-      <div class="field">
-        <label for="editName">Nama lengkap</label>
-        <div class="field__box">${ICON.user}<input id="editName" name="name" type="text" value="${escapeHtml(user.name)}" required></div>
-      </div>
-      <div class="field">
-        <label for="editPhone">Nomor HP</label>
-        <div class="field__box">${ICON.phone}<input id="editPhone" name="phone" type="tel" value="${escapeHtml(user.phone || '')}" placeholder="08xxxxxxxxxx"></div>
-      </div>
-      <div class="field">
-        <label for="editEmail">Email</label>
-        <div class="field__box">${ICON.mail}<input id="editEmail" name="email" type="email" value="${escapeHtml(user.email || '')}" placeholder="nama@email.com"></div>
-      </div>
-      <button class="btn btn--primary btn--block" type="submit">Simpan perubahan</button>
-    </form>`,
-  });
-  wrap.querySelector('#editProfileForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.target);
-    const payload = {
-      name: String(data.get('name') || '').trim(),
-      phone: String(data.get('phone') || '').trim(),
-      email: String(data.get('email') || '').trim(),
-    };
-
-    if (payload.name.length < 3) {
-      toast('Nama minimal 3 karakter.', 'error');
-      return;
-    }
-
-    const button = event.target.querySelector('button[type="submit"]');
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Menyimpan...';
-    }
-
-    try {
-      if (window.KlikApi?.isPhp() && getUser()) {
-        try {
-          const result = await window.KlikApi.updateProfile(payload);
-          if (result.user) applyUserSession(result.user);
-          else setUser({ ...user, ...payload });
-        } catch (error) {
-          if (error.status === 401) {
-            logout();
-            closeSheet();
-            renderAkun();
-            mountChrome({ header: 'main', active: 'akun' });
-            toast('Sesi kamu habis. Silakan masuk lagi.', 'error');
-            return;
-          }
-          if (!error.offline) {
-            toast(error.message || 'Profil gagal disimpan.', 'error');
-            return;
-          }
-          setUser({ ...user, ...payload });
-        }
-      } else {
-        setUser({ ...user, ...payload });
-      }
-
-      closeSheet();
-      toast('Profil berhasil diperbarui.', 'success');
-      renderAkun();
-      mountChrome({ header: 'main', active: 'akun' });
-    } finally {
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Simpan perubahan';
-      }
-    }
-  });
-}
-
-function confirmLogout() {
-  const wrap = openSheet({
-    title: 'Keluar dari akun?',
-    body: `<p class="sheet__lead">Keranjangmu tetap tersimpan di perangkat ini, jadi bisa dilanjutkan kapan saja.</p>
-      <div class="option-list">
-        <button class="btn btn--primary btn--block" type="button" id="confirmLogout">${ICON.logout} Ya, keluar</button>
-        <button class="btn btn--ghost btn--block" type="button" data-close>Batal</button>
-      </div>`,
-  });
-  wrap.querySelector('#confirmLogout').addEventListener('click', () => {
-    logout();
-    closeSheet();
-    toast('Kamu sudah keluar dari akun.', 'info');
-    renderAkun();
-    mountChrome({ header: 'main', active: 'akun' });
-  });
-}
 
 function renderGuest() {
   akunRoot.innerHTML = `<div class="profile-guest">
@@ -171,27 +40,9 @@ function renderGuest() {
 function renderUser() {
   const user = getUser();
   if (!user) return renderGuest();
-  const orders = Store.get(KEY.orders, []);
-  const joined = user.joined
-    ? new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(new Date(user.joined))
-    : 'Oktober 2026';
+  const orders = getCachedOrders();
 
-  akunRoot.innerHTML = `<section class="profile-card">
-      <div class="profile-card__head">
-        <div class="profile-card__avatar">${escapeHtml(initials(user.name))}</div>
-        <div>
-          <h2>${escapeHtml(user.name)}</h2>
-          <p>${escapeHtml(user.phone || user.email || 'Member Klik Indomaret')}</p>
-          <p>Member sejak ${joined}</p>
-        </div>
-        <button class="profile-card__edit" type="button" id="editProfileBtn" aria-label="Edit profil">${ICON.edit}</button>
-      </div>
-      <div class="profile-stats">
-        <div class="profile-stat"><small>Saldo</small><strong>${money(getSaldo())}</strong></div>
-        <div class="profile-stat"><small>Poinku</small><strong>${getPoints().toLocaleString('id-ID')}</strong></div>
-        <div class="profile-stat"><small>Stamp</small><strong>12</strong></div>
-      </div>
-    </section>
+  akunRoot.innerHTML = `${KlikAkunProfil.cardHTML(user)}
 
     <div class="menu-list">
       <a class="menu-item" href="#pesanan">
@@ -228,21 +79,11 @@ function renderUser() {
 
     <div class="section-label" id="pesanan"><span>Pesanan Saya</span><a class="link-more" href="promo.html">Lihat Promo ${ICON.chevronRight}</a></div>
 
-    ${
-      orders.length
-        ? orders.slice(0, 4).map(orderCardHTML).join('')
-        : `<div class="empty" style="padding:28px 20px">
-            <span class="empty__icon">📦</span>
-            <h2>Belum ada pesanan</h2>
-            <p>Yuk mulai belanja, pesananmu akan muncul di sini.</p>
-            <a class="btn btn--primary btn--sm" href="kategori.html">Mulai belanja</a>
-          </div>`
-    }
+    ${KlikAkunPesanan.listHTML(orders)}
 
     <button class="btn btn--danger-ghost btn--block" type="button" id="logoutBtn" style="width:calc(100% - 28px);margin:14px">${ICON.logout} Keluar dari akun</button>`;
 
-  $('#editProfileBtn').addEventListener('click', openEditProfile);
-  $('#logoutBtn').addEventListener('click', confirmLogout);
+  KlikAkunProfil.bind();
   bindMenus();
 }
 
@@ -290,7 +131,7 @@ async function syncAccount() {
     ]);
 
     if (profile.user) applyUserSession(profile.user);
-    if (Array.isArray(orders.orders)) Store.set(KEY.orders, orders.orders);
+    if (Array.isArray(orders.orders)) setCachedOrders(orders.orders);
 
     renderUser();
     mountChrome({ header: 'main', active: 'akun' });

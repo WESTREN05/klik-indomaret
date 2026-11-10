@@ -6,7 +6,14 @@ function getCart() {
   // Rapikan id lama yang mungkin tersimpan dengan spasi (mis. " telur-10")
   // supaya keranjang yang sudah ada tidak hilang setelah perbaikan data.
   return Store.get(KEY.cart, [])
-    .map((item) => ({ ...item, id: String(item.id ?? '').trim() }))
+    .map((item) => {
+      const qty = Math.floor(Number(item.qty));
+      return {
+        ...item,
+        id: String(item.id ?? '').trim(),
+        qty: Number.isFinite(qty) && qty > 0 ? Math.min(KlikPricing.MAX_QTY, qty) : 1,
+      };
+    })
     .filter((item) => findProduct(item.id));
 }
 
@@ -21,17 +28,11 @@ function cartCount() {
 }
 
 function cartSubtotal() {
-  return getCart().reduce((sum, item) => {
-    const p = findProduct(item.id);
-    return sum + (p ? p.price * item.qty : 0);
-  }, 0);
+  return KlikPricing.itemsSummary(getCart()).subtotal;
 }
 
 function cartOriginalTotal() {
-  return getCart().reduce((sum, item) => {
-    const p = findProduct(item.id);
-    return sum + (p ? (p.original || p.price) * item.qty : 0);
-  }, 0);
+  return KlikPricing.itemsSummary(getCart()).originalTotal;
 }
 
 function cartQty(id, variant) {
@@ -53,26 +54,53 @@ function addToCart(id, qty = 1, variant) {
   const p = findProduct(id);
   if (!p) return;
   const v = variant || p.unit;
+  const amount = Math.max(1, Math.floor(Number(qty) || 1));
   const cart = getCart();
   const found = cart.find((item) => item.id === id && item.variant === v);
-  if (found) found.qty += qty;
-  else cart.push({ id, qty, variant: v });
+  const currentQty = found ? found.qty : 0;
+
+  if (currentQty >= KlikPricing.MAX_QTY) {
+    toast(`Jumlah ${p.short} sudah maksimal ${KlikPricing.MAX_QTY}.`, 'info');
+    return;
+  }
+
+  const nextQty = Math.min(KlikPricing.MAX_QTY, currentQty + amount);
+  if (found) found.qty = nextQty;
+  else cart.push({ id, qty: nextQty, variant: v });
   saveCart(cart);
-  toast(`${p.short} ditambahkan ke keranjang`, 'success');
+
+  if (nextQty < currentQty + amount) {
+    toast(`Jumlah ${p.short} dibatasi maksimal ${KlikPricing.MAX_QTY}.`, 'info');
+  } else {
+    toast(`${p.short} ditambahkan ke keranjang`, 'success');
+  }
 }
 
 function setItemQty(id, variant, qty) {
   let cart = getCart();
   const item = cart.find((i) => i.id === id && i.variant === variant);
   if (!item) return;
-  item.qty = qty;
-  if (item.qty <= 0) cart = cart.filter((i) => !(i.id === id && i.variant === variant));
+  const requested = Math.floor(Number(qty) || 0);
+  if (requested <= 0) {
+    cart = cart.filter((i) => !(i.id === id && i.variant === variant));
+    saveCart(cart);
+    return;
+  }
+
+  item.qty = Math.min(KlikPricing.MAX_QTY, requested);
   saveCart(cart);
+  if (requested > KlikPricing.MAX_QTY) {
+    toast(`Jumlah ${findProduct(id)?.short || 'produk'} dibatasi maksimal ${KlikPricing.MAX_QTY}.`, 'info');
+  }
 }
 
 function changeQty(id, variant, delta) {
   const item = getCart().find((i) => i.id === id && i.variant === variant);
   if (!item) return;
+  if (delta > 0 && item.qty >= KlikPricing.MAX_QTY) {
+    toast(`Jumlah ${findProduct(id)?.short || 'produk'} sudah maksimal ${KlikPricing.MAX_QTY}.`, 'info');
+    return;
+  }
   setItemQty(id, variant, item.qty + delta);
 }
 

@@ -12,6 +12,7 @@ try {
             'ok' => true,
             'vouchers' => klik_vouchers(),
             'claimed' => $user !== null ? klik_claimed_codes((int) $user['id']) : [],
+            'used' => $user !== null ? klik_used_codes((int) $user['id']) : [],
         ]);
     }
 
@@ -28,7 +29,11 @@ try {
         }
 
         $claimed = klik_claim_voucher((int) $user['id'], $code);
-        klik_json_response(['ok' => true, 'claimed' => $claimed]);
+        klik_json_response([
+            'ok' => true,
+            'claimed' => $claimed,
+            'used' => klik_used_codes((int) $user['id']),
+        ]);
     }
 
     klik_json_response(['ok' => false, 'error' => 'Metode tidak diizinkan.'], 405);

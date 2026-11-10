@@ -8,8 +8,8 @@ const state = {
   sort: params.get('sort') || 'popular',
   promo: params.get('promo') === '1',
   ready: params.get('ready') === '1',
-  min: 0,
-  max: 0,
+  min: Math.max(0, Number(params.get('min')) || 0),
+  max: Math.max(0, Number(params.get('max')) || 0),
 };
 
 const SORT_LABEL = {
@@ -126,6 +126,8 @@ function syncURL() {
     sort: state.sort !== 'popular' ? state.sort : null,
     promo: state.promo ? '1' : null,
     ready: state.ready ? '1' : null,
+    min: state.min > 0 ? String(state.min) : null,
+    max: state.max > 0 ? String(state.max) : null,
   };
   Object.entries(values).forEach(([key, value]) => {
     if (value) url.searchParams.set(key, value);
@@ -182,15 +184,26 @@ function openFilterSheet() {
         <div class="field__box"><input id="maxPrice" name="max" type="number" min="0" step="500" placeholder="Contoh: 50000" value="${state.max || ''}"></div>
       </div>
       <button class="btn btn--primary btn--block" type="submit">Terapkan filter</button>
+      <p class="hint" data-filter-error style="color:var(--red)" hidden></p>
       <button class="btn btn--ghost btn--block" type="button" data-reset style="margin-top:8px">Reset filter</button>
     </form>`,
   });
   wrap.querySelector('form').addEventListener('submit', (event) => {
     event.preventDefault();
     const data = new FormData(event.target);
-    state.min = Math.max(0, Number(data.get('min')) || 0);
-    state.max = Math.max(0, Number(data.get('max')) || 0);
+    const min = Math.max(0, Number(data.get('min')) || 0);
+    const max = Math.max(0, Number(data.get('max')) || 0);
+    const error = wrap.querySelector('[data-filter-error]');
+    if (min > 0 && max > 0 && min > max) {
+      error.textContent = 'Harga minimum tidak boleh lebih besar dari harga maksimum.';
+      error.hidden = false;
+      return;
+    }
+    error.hidden = true;
+    state.min = min;
+    state.max = max;
     closeSheet();
+    syncURL();
     renderAll();
   });
   wrap.addEventListener('click', (event) => {
@@ -198,6 +211,7 @@ function openFilterSheet() {
     state.min = 0;
     state.max = 0;
     closeSheet();
+    syncURL();
     renderAll();
   });
 }

@@ -133,6 +133,27 @@ function klik_claimed_codes(int $userId): array
     return $codes;
 }
 
+function klik_used_codes(int $userId): array
+{
+    $used = [];
+    foreach (klik_read_json('orders') as $order) {
+        if ((int) ($order['user_id'] ?? 0) !== $userId) {
+            continue;
+        }
+        $code = (string) ($order['voucher'] ?? '');
+        if ($code !== '' && !in_array($code, $used, true)) {
+            $used[] = $code;
+        }
+    }
+
+    return $used;
+}
+
+function klik_voucher_used(int $userId, string $code): bool
+{
+    return in_array(strtoupper(trim($code)), klik_used_codes($userId), true);
+}
+
 function klik_claim_voucher(int $userId, string $code): array
 {
     $code = strtoupper(trim($code));

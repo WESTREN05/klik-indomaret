@@ -1,4 +1,4 @@
-/* login.js — masuk, daftar, validasi, dan sesi */
+/* login.js — orkestrasi UI masuk, daftar, dan bantuan akun */
 
 const authParams = new URLSearchParams(location.search);
 const rawNext = authParams.get('next') || 'index.html';
@@ -6,16 +6,6 @@ const nextPage = /^[a-z0-9_-]+\.(?:html|php)(\?.*)?$/i.test(rawNext) ? rawNext :
 
 const loginForm = $('#loginForm');
 const registerForm = $('#registerForm');
-
-function setFieldError(fieldId, hasError, message) {
-  const field = document.getElementById(fieldId);
-  if (!field) return;
-  field.classList.toggle('has-error', hasError);
-  if (message) {
-    const error = field.querySelector('.field__error');
-    if (error) error.textContent = message;
-  }
-}
 
 function switchAuthTab(tab) {
   $$('[data-auth-tab]').forEach((btn) => {
@@ -38,90 +28,6 @@ function switchAuthTab(tab) {
     switchBtn.textContent = tab === 'login' ? 'Daftar gratis' : 'Masuk di sini';
     switchBtn.dataset.authTab = tab === 'login' ? 'register' : 'login';
   }
-}
-
-function validateLogin() {
-  const contact = $('#loginContact').value.trim();
-  const password = $('#loginPassword').value;
-  let valid = true;
-
-  if (!contact) {
-    setFieldError('loginContactField', true, 'Nomor HP atau email wajib diisi.');
-    valid = false;
-  } else {
-    setFieldError('loginContactField', false);
-  }
-
-  if (password.length < 6) {
-    setFieldError('loginPasswordField', true, 'Password minimal 6 karakter.');
-    valid = false;
-  } else {
-    setFieldError('loginPasswordField', false);
-  }
-
-  return valid;
-}
-
-function validateRegister() {
-  const name = $('#regName').value.trim();
-  const phone = $('#regPhone').value.trim();
-  const email = $('#regEmail').value.trim();
-  const password = $('#regPassword').value;
-  const confirm = $('#regConfirm').value;
-  let valid = true;
-
-  if (name.length < 3) {
-    setFieldError('regNameField', true, 'Nama minimal 3 karakter.');
-    valid = false;
-  } else setFieldError('regNameField', false);
-
-  if (!/^\d{10,15}$/.test(phone.replace(/[\s-]/g, ''))) {
-    setFieldError('regPhoneField', true, 'Nomor HP harus 10–15 digit angka.');
-    valid = false;
-  } else setFieldError('regPhoneField', false);
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setFieldError('regEmailField', true, 'Format email belum benar.');
-    valid = false;
-  } else setFieldError('regEmailField', false);
-
-  if (password.length < 6) {
-    setFieldError('regPasswordField', true, 'Password minimal 6 karakter.');
-    valid = false;
-  } else setFieldError('regPasswordField', false);
-
-  if (confirm !== password || !confirm) {
-    setFieldError('regConfirmField', true, 'Konfirmasi password belum sama.');
-    valid = false;
-  } else setFieldError('regConfirmField', false);
-
-  return valid;
-}
-
-function setBusy(button, busy, label = 'Memproses...') {
-  if (!button) return;
-  if (busy) {
-    button.dataset.originalText = button.textContent;
-    button.disabled = true;
-    button.textContent = label;
-  } else {
-    button.disabled = false;
-    button.textContent = button.dataset.originalText || 'Masuk';
-  }
-}
-
-function finishAuth(user, button) {
-  applyUserSession(user);
-  if (typeof user.saldo !== 'number' && user.phone === '081234567890') setSaldo(185000);
-  if (typeof user.points !== 'number' && user.phone === '081234567890') setPoints(4850);
-  if (button) {
-    button.disabled = true;
-    button.textContent = 'Memproses...';
-  }
-  toast(`Selamat datang, ${user.name.split(' ')[0]}!`, 'success');
-  setTimeout(() => {
-    location.href = nextPage;
-  }, 650);
 }
 
 function initLogin() {
@@ -154,98 +60,14 @@ function initLogin() {
     });
   });
 
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!validateLogin()) return;
-
-    const contact = $('#loginContact').value.trim();
-    const password = $('#loginPassword').value;
-    const button = $('#loginSubmit');
-
-    if (window.KlikApi?.isPhp()) {
-      setBusy(button, true);
-      try {
-        const result = await window.KlikApi.login(contact, password);
-        if (Array.isArray(result.claimed)) Store.set(KEY.claimed, result.claimed);
-        finishAuth(result.user, button);
-        return;
-      } catch (error) {
-        setBusy(button, false);
-        if (!error.offline) {
-          toast(error.message || 'Nomor HP/email atau password salah.', 'error');
-          return;
-        }
-        // Server PHP tidak tersedia: lanjut ke fallback localStorage.
-      }
-    }
-
-    const isDemo = contact.replace(/\D/g, '') === '081234567890' || contact.toLowerCase() === 'demo@klikindomaret.id';
-    const isEmail = contact.includes('@');
-    const rawName = isDemo ? 'Bagas Pratama' : isEmail ? contact.split('@')[0] : 'Pelanggan Indomaret';
-    const name = rawName
-      .replace(/[._-]+/g, ' ')
-      .split(' ')
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    finishAuth(
-      {
-        name: isDemo ? 'Bagas Pratama' : name,
-        phone: isEmail ? '' : contact,
-        email: isEmail ? contact : '',
-        joined: new Date().toISOString(),
-      },
-      button
-    );
-  });
-
-  registerForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!validateRegister()) return;
-
-    const payload = {
-      name: $('#regName').value.trim(),
-      phone: $('#regPhone').value.trim(),
-      email: $('#regEmail').value.trim(),
-      password: $('#regPassword').value,
-    };
-    const button = $('#registerSubmit');
-
-    if (window.KlikApi?.isPhp()) {
-      setBusy(button, true);
-      try {
-        const result = await window.KlikApi.register(payload);
-        if (Array.isArray(result.claimed)) Store.set(KEY.claimed, result.claimed);
-        finishAuth(result.user, button);
-        return;
-      } catch (error) {
-        setBusy(button, false);
-        if (!error.offline) {
-          toast(error.message || 'Pendaftaran gagal.', 'error');
-          return;
-        }
-        // Server PHP tidak tersedia: lanjut ke fallback localStorage.
-      }
-    }
-
-    Store.set(KEY.claimed, []);
-    finishAuth(
-      {
-        name: payload.name,
-        phone: payload.phone,
-        email: payload.email,
-        joined: new Date().toISOString(),
-      },
-      button
-    );
-  });
+  KlikLoginAuth.bind(nextPage);
 
   $('#fillDemo').addEventListener('click', () => {
     switchAuthTab('login');
     $('#loginContact').value = '081234567890';
     $('#loginPassword').value = 'password123';
-    setFieldError('loginContactField', false);
-    setFieldError('loginPasswordField', false);
+    KlikForm.setFieldError('loginContactField', false);
+    KlikForm.setFieldError('loginPasswordField', false);
     toast('Akun demo siap. Tekan Masuk.', 'info');
   });
 

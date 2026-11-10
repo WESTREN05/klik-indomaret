@@ -48,20 +48,18 @@ C:\laragon\bin\php\php-8.2.21-nts-Win32-vs16-x64\php.exe
 
 ---
 
-## Cara menjalankan mode statis (fallback)
+## Menjalankan manual lewat PHP
 
-Kalau hanya ingin melihat tampilan tanpa PHP:
+Selalu jalankan project lewat router PHP:
 
 ```powershell
 cd C:\klik-indomaret
-python -m http.server 8123 --bind 127.0.0.1
+php -S localhost:8000 router.php
 ```
 
-Buka `http://127.0.0.1:8123/index.html`.
+Buka `http://127.0.0.1:8000/`.
 
-Bisa juga memakai **VS Code Live Server** atau membuka `index.html` langsung lewat `file://`. Di mode ini auth, pesanan, voucher, dan profil otomatis memakai `localStorage` karena endpoint PHP tidak tersedia.
-
-> Mode statis hanya untuk preview tampilan di komputer sendiri. Python/Live Server tidak mengeksekusi PHP dan tidak membaca `.htaccess`, jadi jangan memakai mode ini untuk mengakses project dari jaringan publik.
+> **Peringatan:** jangan menjalankan project ini lewat server statis (mis. `python -m http.server`, Live Server, atau `file://`) karena data JSON akan terbuka. Server statis menyajikan seluruh isi folder apa adanya sehingga `php/data/*.json` — berisi akun, pesanan, dan klaim voucher — bisa diunduh siapa saja. Router PHP memblokir `php/`, dotfile, dan endpoint privat.
 
 ---
 
@@ -123,7 +121,7 @@ Browser
 - `php/lib/auth.php` — register, login, logout, profil, klaim voucher.
 - `php/lib/catalog.php` — katalog produk & voucher untuk validasi pesanan.
 - `php/lib/order.php` — bentuk order yang dikirim ke frontend.
-- `php/data/catalog.json` — hasil generate dari `js/data.js` + `js/products.js` (27 produk, 4 voucher).
+- `php/data/catalog.json` — hasil generate dari `js/data.js` + `js/products.js` (27 produk, 4 voucher, aturan voucher, dan settings ongkir/poin). Jangan diedit manual: ubah data di JS lalu jalankan `npm run build:catalog`.
 - `php/data/users.json`, `orders.json`, `voucher_claims.json` — data runtime; dibuat otomatis saat pertama dijalankan.
 
 ### Endpoint API
@@ -182,22 +180,57 @@ klik-indomaret/
 │       ├── .htaccess               # blokir akses langsung (Apache)
 │       └── .gitignore
 ├── css/
-│   └── style.css
+│   ├── base.css                    # token warna, reset, tipografi, utilitas
+│   ├── layout.css                  # app shell, topbar, bottom nav
+│   ├── components.css              # tombol, chip, badge
+│   ├── home.css                    # beranda (termasuk aturan desktop)
+│   ├── catalog.css                 # kategori + detail produk (termasuk desktop)
+│   ├── cart.css                    # stepper + keranjang (termasuk desktop)
+│   ├── account.css                 # login, akun, promo (termasuk desktop)
+│   ├── overlays.css                # sheet, toast, sukses, aksesibilitas
+│   └── responsive.css              # tablet + desktop untuk shell/komponen bersama
 ├── js/
 │   ├── api.js                      # jembatan fetch ke PHP + fallback
-│   ├── data.js                     # produk, kategori, toko, alamat, banner, voucher
-│   ├── app.js                      # mesin bersama: cart, auth, header, nav, sheet, toast
+│   ├── data.js                     # kategori, toko, alamat, banner, voucher
+│   ├── products.js                 # data 27 produk
+│   ├── core.js                     # utilitas, localStorage, ikon, helper data
+│   ├── form.js                     # helper error field, validasi kontak, busy state
+│   ├── session.js                  # user, alamat, toko, saldo, poin, klaim voucher
+│   ├── cart.js                     # operasi keranjang dan badge
+│   ├── pricing.js                  # satu sumber total, voucher, ongkir, poin
+│   ├── components.js               # header, nav, kartu produk, toast
+│   ├── sheets.js                   # bottom sheet dan dialog umum
+│   ├── app.js                      # event global + inisialisasi halaman
 │   ├── home.js
 │   ├── kategori.js
 │   ├── produk.js
-│   ├── keranjang.js
-│   ├── login.js
-│   ├── akun.js
+│   ├── keranjang.js                # state, pemilihan item, render keranjang
+│   ├── voucher.js                  # sheet voucher & promo
+│   ├── checkout.js                 # sinkronisasi poin + alur checkout
+│   ├── payment.js                  # metode bayar + penyelesaian pesanan
+│   ├── login-validasi.js           # validasi form masuk dan daftar
+│   ├── login-auth.js               # alur submit masuk/daftar + sesi
+│   ├── login.js                    # orkestrasi UI halaman login
+│   ├── akun-profil.js              # kartu profil, edit profil, logout
+│   ├── akun-pesanan.js             # kartu dan daftar riwayat pesanan
+│   ├── akun.js                     # orkestrasi halaman akun + menu
 │   └── promo.js
+├── tools/
+│   ├── build-catalog.js            # generate catalog.json dari data.js + products.js
+│   ├── check-catalog.js            # cek ID, harga, varian, voucher vs catalog.json
+│   ├── check-images.js             # cek nama/format + kelengkapan foto produk
+│   ├── test-pricing.js             # 19 kasus uji total, voucher, ongkir, poin
+│   ├── test-session.js             # 7 kasus uji logout dan status voucher
+│   ├── test-api.js                 # 7 kasus uji klasifikasi error API
+│   ├── test-voucher.php            # 7 kasus uji voucher sekali pakai (server)
+│   └── reset-demo.php              # reset akun demo + pesanan + klaim voucher
 ├── assets/
 │   └── products/                   # tempat foto produk (lihat di bawah)
 ├── docs/
 │   └── waterfall.md                # dokumentasi tugas
+├── package.json                    # skrip pemeriksaan (khusus dev)
+├── eslint.config.js
+├── stylelint.config.js
 └── README.md
 ```
 
@@ -207,13 +240,19 @@ klik-indomaret/
 
 ### Reset data PHP
 
-Hentikan server, lalu hapus file runtime:
+Hentikan server, lalu jalankan:
+
+```bash
+npm run reset:demo
+```
+
+Perintah ini mengembalikan akun demo (`081234567890` / `password123`), saldo Rp 185.000, dan poin 4.850, serta mengosongkan pesanan dan klaim voucher. `php/data/catalog.json` tidak diubah.
+
+Alternatif manual: hapus tiga file runtime berikut, lalu jalankan server lagi. Akun demo akan dibuat ulang otomatis.
 
 ```powershell
 Remove-Item php\data\users.json, php\data\orders.json, php\data\voucher_claims.json -Force
 ```
-
-Jalankan server lagi. Akun demo dan file kosong akan dibuat ulang otomatis. `php/data/catalog.json` jangan dihapus karena berisi katalog produk.
 
 ### Reset data browser
 
@@ -235,7 +274,7 @@ lalu refresh. Kunci penyimpanan memakai prefix `klik_*_v1`.
 
 ## Mengganti gambar produk
 
-Saat ini produk memakai **emoji + gradient** sebagai placeholder. Kalau foto produk dari desain sudah tersedia, simpan file JPEG di:
+Produk otomatis memakai foto jika filenya ada; **emoji + gradient** hanya menjadi fallback ketika foto belum tersedia. Simpan file JPEG di:
 
 ```text
 assets/products/<id-produk>.jpg
@@ -249,9 +288,50 @@ assets/products/indomie-goreng.jpg
 assets/products/ultra-1l.jpg
 ```
 
-Nama file harus sama dengan `id` produk di `js/products.js`. Setelah file dimasukkan, gambar akan otomatis menggantikan emoji tanpa mengubah kode.
+Nama file harus sama dengan `id` produk di `js/products.js`, memakai **huruf kecil** dan ekstensi **`.jpg`**. Setelah file dimasukkan, gambar akan otomatis menggantikan emoji tanpa mengubah kode.
 
-Daftar id produk ada di `js/products.js` (mulai dari `sania-2l`, `indomie-goreng`, `ultra-1l`, dan seterusnya). Selama gambar belum ada, browser bisa mencatat 404 untuk `assets/products/*.jpg` di console — ini normal dan tidak memengaruhi fungsi aplikasi.
+Daftar id produk ada di `js/products.js` (mulai dari `sania-2l`, `indomie-goreng`, `ultra-1l`, dan seterusnya). Saat ini 27 dari 27 foto sudah tersedia. Kalau ada produk baru, beri nama file sesuai `id` produknya; selama foto belum ada, browser bisa mencatat 404 untuk `assets/products/*.jpg` di console — ini normal dan tidak memengaruhi fungsi aplikasi.
+
+Periksa nama, format, dan kelengkapan foto dengan:
+
+```bash
+npm run check:images
+npm run check:images -- --strict
+```
+
+Mode biasa hanya gagal jika ada file yang salah nama/format; foto yang belum ada dilaporkan sebagai INFO. Mode `--strict` juga gagal selama masih ada foto yang belum lengkap. `npm run check` menjalankan mode biasa.
+
+---
+
+## Pemeriksaan otomatis
+
+Dependensi di bawah hanya untuk pengembangan; aplikasi tetap berjalan tanpa build step.
+
+```bash
+npm install
+npm run check
+```
+
+`npm run check` menjalankan berurutan:
+
+- `tools/check-catalog.js` — memastikan ID/kode, harga, varian, dan aturan voucher di `js/data.js` + `js/products.js` cocok dengan `php/data/catalog.json`. Jika beda, jalankan `npm run build:catalog`.
+- `tools/check-images.js` — memastikan foto yang ada memakai `<id>.jpg` huruf kecil; foto yang belum ada dilaporkan sebagai INFO.
+- `tools/test-pricing.js` — 19 kasus uji total, voucher, ongkir, dan poin (angka demo di `docs/waterfall.md`).
+- `tools/test-session.js` — 7 kasus uji status voucher, pembersihan data saat logout, dan keranjang yang dipertahankan.
+- `tools/test-api.js` — 7 kasus uji klasifikasi error API: HTML 5xx bukan mode offline, sedangkan endpoint yang tidak ada di server statis tetap offline.
+- `tools/test-voucher.php` — 7 kasus uji aturan voucher sekali pakai di server memakai fixture, tanpa menyentuh `php/data` (butuh PHP CLI).
+- ESLint untuk `js/` dan `tools/`.
+- Stylelint untuk `css/`.
+
+### Satu sumber untuk harga dan voucher
+
+Harga produk, varian, minimal belanja voucher, dan aturan potongan hanya ditulis di `js/products.js` dan `js/data.js` (`SETTINGS` + `VOUCHERS[].rules`). Setelah mengubahnya, jalankan:
+
+```bash
+npm run build:catalog
+```
+
+Perintah itu membuat ulang `php/data/catalog.json` yang dipakai server untuk menghitung ulang total, jadi harga di browser dan tagihan server tidak bisa berbeda. `npm run check` akan gagal jika keduanya tidak sinkron.
 
 ---
 

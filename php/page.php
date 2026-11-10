@@ -51,6 +51,7 @@ function klik_page(string $template): void
         'apiBase' => 'api',
         'user' => $user !== null ? klik_public_user($user) : null,
         'claimed' => $user !== null ? klik_claimed_codes((int) $user['id']) : [],
+        'used' => $user !== null ? klik_used_codes((int) $user['id']) : [],
     ];
 
     $json = json_encode(
@@ -70,6 +71,7 @@ function klik_page(string $template): void
         . 'localStorage.removeItem("klik_saldo_v1");'
         . 'localStorage.removeItem("klik_points_v1");}'
         . 'if(Array.isArray(boot.claimed))localStorage.setItem("klik_claimed_v1",JSON.stringify(boot.claimed));'
+        . 'if(Array.isArray(boot.used))localStorage.setItem("klik_used_v1",JSON.stringify(boot.used));'
         . '}catch(e){}'
         . '})();</script>';
 

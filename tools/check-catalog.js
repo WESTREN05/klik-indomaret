@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /**
- * check-ids.js — membandingkan ID/kode di js/data.js dengan php/data/catalog.json.
+ * check-catalog.js — membandingkan js/data.js + js/products.js dengan
+ * php/data/catalog.json, termasuk harga, varian, dan aturan voucher.
  *
  * Jalankan dari root proyek:
- *   node tools/check-ids.js
+ *   node tools/check-catalog.js
  *
+ * Jika ada perbedaan: `npm run build:catalog` untuk membuat ulang catalog.json.
  * Keluar dengan kode 1 jika ada masalah, supaya bisa dipakai di CI/pre-commit.
  */
 
@@ -28,9 +30,11 @@ if (!fs.existsSync(catalogFile)) fail(`File tidak ditemukan: ${catalogFile}`);
 
 let data;
 try {
-  const source = fs.readFileSync(dataFile, 'utf8')
-    + '\n' + fs.readFileSync(productsFile, 'utf8')
-    + '\n;globalThis.__DATA__ = { PRODUCTS, CATEGORIES, STORES, ADDRESSES, VOUCHERS, BANNERS, STORE };';
+  const source =
+    fs.readFileSync(dataFile, 'utf8') +
+    '\n' +
+    fs.readFileSync(productsFile, 'utf8') +
+    '\n;globalThis.__DATA__ = { PRODUCTS, CATEGORIES, STORES, ADDRESSES, VOUCHERS, BANNERS, STORE, SETTINGS };';
   const sandbox = {};
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: productsFile });
@@ -96,6 +100,40 @@ function collect(list, key, sourceName) {
   return values;
 }
 
+const show = (value) => (value === undefined ? '(tidak ada)' : JSON.stringify(value));
+
+/** Bandingkan nilai JS dengan isi catalog.json dan laporkan jalur yang beda. */
+function compareValues(label, expected, actual) {
+  if (Array.isArray(expected) || Array.isArray(actual)) {
+    if (!Array.isArray(expected) || !Array.isArray(actual)) {
+      problems.push(`${label}: tipe beda -> js ${show(expected)} vs catalog ${show(actual)}`);
+      return;
+    }
+    if (expected.length !== actual.length) {
+      problems.push(`${label}: jumlah beda -> js ${expected.length} vs catalog ${actual.length}`);
+    }
+    const length = Math.min(expected.length, actual.length);
+    for (let index = 0; index < length; index += 1) {
+      compareValues(`${label}[${index}]`, expected[index], actual[index]);
+    }
+    return;
+  }
+
+  if (expected && typeof expected === 'object') {
+    if (!actual || typeof actual !== 'object') {
+      problems.push(`${label}: tipe beda -> js ${show(expected)} vs catalog ${show(actual)}`);
+      return;
+    }
+    const keys = new Set([...Object.keys(expected), ...Object.keys(actual)]);
+    keys.forEach((key) => compareValues(`${label}.${key}`, expected[key], actual[key]));
+    return;
+  }
+
+  if (expected !== actual) {
+    problems.push(`${label}: js ${show(expected)} vs catalog ${show(actual)}`);
+  }
+}
+
 for (const group of groups) {
   const left = collect(group.left, group.key, `data.js ${group.name}`);
   const right = collect(group.right, group.key, `catalog.json ${group.name}`);
@@ -116,7 +154,15 @@ for (const group of groups) {
           `${group.name}: hanya ada di data.js -> ${JSON.stringify(item.raw)} (${group.key})`
         );
       }
+      continue;
     }
+
+    const counterpart = rightMap.get(item.raw);
+    compareValues(
+      `${group.name}[${item.value}]`,
+      group.left[item.index],
+      group.right[counterpart.index]
+    );
   }
 
   for (const item of right) {
@@ -131,35 +177,36 @@ for (const group of groups) {
     }
   }
 
-  notes.push(
-    `${group.name}: data.js ${left.length} vs catalog.json ${right.length}`
-  );
-
-  if (group.name === 'products') {
-    const productIds = new Set(left.map((item) => item.value));
-    (data.PRODUCTS || []).forEach((product, index) => {
-      if (product && product.image) {
-        const imagePath = path.join(root, product.image.replace(/^\/+/, ''));
-        if (!fs.existsSync(imagePath)) {
-          // Bukan error fatal: app.js memakai assets/products/<id>.jpg.
-          notes.push(
-            `products[${index}].image menunjuk file yang tidak ada: ${product.image}`
-          );
-        }
-      }
-      if (product && product.id && !productIds.has(product.id.trim())) {
-        notes.push(`products[${index}].id tidak konsisten setelah trim.`);
-      }
-    });
-  }
+  notes.push(`${group.name}: data.js ${left.length} vs catalog.json ${right.length}`);
 }
 
-console.log('Pemeriksaan ID/kode data.js vs catalog.json');
+if (!catalog.settings) {
+  problems.push('settings: catalog.json belum punya settings (ongkir/poin/maxQty).');
+} else {
+  compareValues('settings', data.SETTINGS, catalog.settings);
+}
+
+console.log('Pemeriksaan data.js + products.js vs catalog.json');
 console.log('='.repeat(56));
 notes.forEach((note) => console.log(`INFO  ${note}`));
+console.log('INFO  harga, varian, aturan voucher, dan settings ikut dibandingkan');
+
+const productIds = new Set((data.PRODUCTS || []).map((product) => product.id));
+(data.PRODUCTS || []).forEach((product, index) => {
+  if (product && product.image) {
+    const imagePath = path.join(root, product.image.replace(/^\/+/, ''));
+    if (!fs.existsSync(imagePath)) {
+      // Bukan error fatal: aplikasi memakai assets/products/<id>.jpg.
+      notes.push(`products[${index}].image menunjuk file yang tidak ada: ${product.image}`);
+    }
+  }
+  if (product && product.id && !productIds.has(product.id.trim())) {
+    notes.push(`products[${index}].id tidak konsisten setelah trim.`);
+  }
+});
 
 if (problems.length === 0) {
-  console.log('OK    Semua ID/kode cocok, tidak ada spasi tersembunyi atau duplikat.');
+  console.log('OK    Semua ID, harga, varian, dan aturan voucher cocok.');
   process.exit(0);
 }
 
@@ -167,4 +214,5 @@ console.log('');
 problems.forEach((problem) => console.log(`GAGAL ${problem}`));
 console.log('');
 console.log(`Total masalah: ${problems.length}`);
+console.log('Jalankan `npm run build:catalog` untuk menyinkronkan catalog.json.');
 process.exit(1);

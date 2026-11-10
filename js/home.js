@@ -4,13 +4,14 @@ function renderPromos() {
   const carousel = $('#promoCarousel');
   carousel.innerHTML = BANNERS.map((banner) => {
     const claimed = isClaimed(banner.code);
+    const used = isVoucherUsed(banner.code);
     return `<article class="promo-card promo-card--${banner.tone}">
       <span class="promo-card__emoji" aria-hidden="true">${banner.emoji}</span>
       <span class="promo-card__eyebrow">Promo Spesial</span>
       <h3>${banner.title}</h3>
       <p>${banner.desc}</p>
       <span class="promo-card__code">Kode: ${banner.code}</span>
-      <button class="promo-card__btn" type="button" data-claim="${banner.code}" ${claimed ? 'disabled' : ''}>${claimed ? 'Terkonfirmasi' : 'Klaim'}</button>
+      <button class="promo-card__btn" type="button" data-claim="${banner.code}" ${claimed || used ? 'disabled' : ''}>${used ? 'Sudah dipakai' : claimed ? 'Terkonfirmasi' : 'Klaim'}</button>
     </article>`;
   }).join('');
 }
@@ -78,6 +79,7 @@ function applyMode(mode) {
 
 function initHome() {
   renderPromos();
+  document.addEventListener('auth:change', renderPromos);
   renderCategories();
   renderFlash();
   renderPopular();

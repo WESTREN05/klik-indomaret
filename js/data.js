@@ -33,6 +33,15 @@ const CATEGORIES = [
   { id: 'promo', name: 'Promo JSM', icon: '%', tint: '#ffe0e0', ink: '#d61f26', promo: true },
 ];
 
+/* Angka bisnis bersama: dipakai perhitungan di browser dan, lewat
+   php/data/catalog.json, juga oleh validasi pesanan di server. */
+const SETTINGS = {
+  shippingExpress: 10000,
+  pointCost: 2000,
+  pointValue: 2000,
+  maxQty: 99,
+};
+
 const BANNERS = [
   {
     code: 'GAJIANHEMAT',
@@ -50,11 +59,84 @@ const BANNERS = [
   },
 ];
 
+/* Voucher: `rules` adalah satu-satunya definisi potongan.
+   - fixed    : potongan tetap (Rp)
+   - percent  : persentase subtotal, dibatasi `cap` (Rp) bila ada
+   - shipping : maksimal potongan ongkir (Rp)
+   `expressOnly` menandai voucher yang tidak berlaku saat ambil di toko. */
 const VOUCHERS = [
-  { code: 'GAJIANHEMAT', title: 'Diskon Gajian 40%', desc: 'Maks. potongan Rp 40.000', min: 100000, tone: 'blue' },
-  { code: 'GRATISONGKIR', title: 'Gratis Ongkir Express', desc: 'Hemat Rp 10.000 ongkos kirim', min: 50000, tone: 'green' },
-  { code: 'NEWMEMBER', title: 'Diskon Member Baru', desc: 'Potongan Rp 15.000', min: 75000, tone: 'amber' },
-  { code: 'SABTUMERIAH', title: 'Sabtu Meriah', desc: 'Diskon 30% maks. Rp 30.000 + gratis ongkir express', min: 100000, tone: 'red' },
+  {
+    code: 'GAJIANHEMAT',
+    title: 'Diskon Gajian 40%',
+    desc: 'Maks. potongan Rp 40.000',
+    min: 100000,
+    tone: 'blue',
+    value: '40%',
+    tag: 'DISKON',
+    label: 'Diskon Voucher Gajian',
+    expressOnly: false,
+    terms: [
+      'Minimal belanja Rp 100.000 sebelum ongkir.',
+      'Diskon 40% dengan maksimal potongan Rp 40.000.',
+      'Berlaku untuk Pesan Antar dan Klik & Ambil.',
+      'Tidak dapat digabung dengan voucher lain dan hanya dapat dipakai sekali per akun.',
+    ],
+    rules: { percent: 40, cap: 40000 },
+  },
+  {
+    code: 'GRATISONGKIR',
+    title: 'Gratis Ongkir Express',
+    desc: 'Hemat Rp 10.000 ongkos kirim',
+    min: 50000,
+    tone: 'green',
+    value: '10rb',
+    tag: 'ONGKIR',
+    label: 'Diskon Voucher Pengiriman',
+    expressOnly: true,
+    terms: [
+      'Minimal belanja Rp 50.000 sebelum ongkir.',
+      'Hanya berlaku untuk Pesan Antar (express), tidak berlaku untuk Klik & Ambil.',
+      'Potongan ongkos kirim maksimal Rp 10.000.',
+      'Tidak dapat digabung dengan voucher lain dan hanya dapat dipakai sekali per akun.',
+    ],
+    rules: { shipping: 10000 },
+  },
+  {
+    code: 'NEWMEMBER',
+    title: 'Diskon Member Baru',
+    desc: 'Potongan Rp 15.000',
+    min: 75000,
+    tone: 'amber',
+    value: '15rb',
+    tag: 'MEMBER',
+    label: 'Diskon Voucher Member',
+    expressOnly: false,
+    terms: [
+      'Minimal belanja Rp 75.000 sebelum ongkir.',
+      'Potongan tetap Rp 15.000.',
+      'Berlaku untuk Pesan Antar dan Klik & Ambil.',
+      'Tidak dapat digabung dengan voucher lain dan hanya dapat dipakai sekali per akun.',
+    ],
+    rules: { fixed: 15000 },
+  },
+  {
+    code: 'SABTUMERIAH',
+    title: 'Sabtu Meriah',
+    desc: 'Diskon 30% maks. Rp 30.000 + gratis ongkir express',
+    min: 100000,
+    tone: 'red',
+    value: '30%',
+    tag: 'DISKON',
+    label: 'Diskon Voucher Sabtu Meriah',
+    expressOnly: true,
+    terms: [
+      'Minimal belanja Rp 100.000 sebelum ongkir.',
+      'Diskon 30% dengan maksimal potongan Rp 30.000.',
+      'Hanya berlaku untuk Pesan Antar (express) dengan tambahan potongan ongkir maksimal Rp 10.000.',
+      'Tidak dapat digabung dengan voucher lain dan hanya dapat dipakai sekali per akun.',
+    ],
+    rules: { percent: 30, cap: 30000, shipping: 10000 },
+  },
 ];
 
 /* Data produk ada di js/products.js (dipisah agar file ini ringkas). */

@@ -11,12 +11,18 @@ declare(strict_types=1);
  * - aset    -> dilayani langsung oleh built-in server
  */
 
-function klik_router_deny(string $message = 'Akses ditolak.'): bool
-{
-    http_response_code(403);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['ok' => false, 'error' => $message]);
-    return true;
+// Jangan tampilkan error/path ke klien; cukup catat ke log server.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+if (!function_exists('klik_router_deny')) {
+    function klik_router_deny(string $message = 'Akses ditolak.'): bool
+    {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => false, 'error' => $message]);
+        return true;
+    }
 }
 
 $root = __DIR__;
@@ -46,8 +52,24 @@ if ($uri !== '/' && str_ends_with($uri, '/')) {
     $uri = rtrim($uri, '/');
 }
 
+// Jangan pernah mengeksekusi router itu sendiri sebagai halaman.
+if ($uri === '/router.php') {
+    http_response_code(404);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['ok' => false, 'error' => 'Halaman tidak ditemukan.']);
+    return true;
+}
+
+// Blokir semua segmen berawalan titik (dotfile/dot-directory),
+// kecuali /.well-known yang memang harus bisa diakses.
+foreach ($segments as $index => $segment) {
+    if (str_starts_with($segment, '.') && !($index === 0 && $segment === '.well-known')) {
+        return klik_router_deny();
+    }
+}
+
 // Jangan pernah membocorkan data JSON / konfigurasi lewat browser.
-$blockedRoots = ['php', '.vscode', '.git', '_backup_sebelum_fix'];
+$blockedRoots = ['php', '.vscode', '.git'];
 $firstSegment = strtolower(explode('/', ltrim($uri, '/'))[0] ?? '');
 if (in_array($firstSegment, $blockedRoots, true)) {
     return klik_router_deny();

@@ -26,22 +26,37 @@ function klik_data_file(string $name): string
 }
 
 /**
- * Baca file JSON. Mengembalikan default bila file belum ada / rusak.
+ * Baca file JSON di bawah lock yang sama dengan penulis.
+ * Lock yang sama ini penting: di Windows, rename() gagal bila file tujuan
+ * sedang dibuka proses lain, jadi reader dan writer tidak boleh berlomba.
  */
 function klik_read_json(string $name, array $default = []): array
 {
     $file = klik_data_file($name);
-    if (!is_file($file)) {
-        return $default;
-    }
 
-    $raw = file_get_contents($file);
-    if ($raw === false || trim($raw) === '') {
-        return $default;
-    }
+    return klik_with_lock($name, static function () use ($file, $default): array {
+        if (!is_file($file)) {
+            return $default;
+        }
 
-    $data = json_decode($raw, true);
-    return is_array($data) ? $data : $default;
+        $handle = fopen($file, 'rb');
+        if ($handle === false) {
+            return $default;
+        }
+
+        try {
+            $raw = stream_get_contents($handle);
+        } finally {
+            fclose($handle);
+        }
+
+        if ($raw === false || trim($raw) === '') {
+            return $default;
+        }
+
+        $data = json_decode($raw, true);
+        return is_array($data) ? $data : $default;
+    });
 }
 
 /**
@@ -50,43 +65,82 @@ function klik_read_json(string $name, array $default = []): array
 function klik_write_json(string $name, array $data): void
 {
     $file = klik_data_file($name);
-    $tmp = $file . '.tmp.' . getmypid();
     $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     if ($json === false) {
         throw new RuntimeException('Gagal mengubah data menjadi JSON.');
     }
-    if (file_put_contents($tmp, $json, LOCK_EX) === false) {
-        throw new RuntimeException('Gagal menulis file data.');
+
+    klik_with_lock($name, static function () use ($file, $json): void {
+        $tmp = $file . '.tmp.' . getmypid() . '.' . bin2hex(random_bytes(4));
+        if (file_put_contents($tmp, $json, LOCK_EX) === false) {
+            @unlink($tmp);
+            throw new RuntimeException('Gagal menulis file data.');
+        }
+        if (!rename($tmp, $file)) {
+            @unlink($tmp);
+            throw new RuntimeException('Gagal menyimpan file data.');
+        }
+    });
+}
+
+/**
+ * Jalankan callback sambil memegang lock eksklusif bernama.
+ * Lock memakai file terpisah (<nama>.lock) di php/data, bukan file JSON-nya,
+ * supaya aman dipakai bersama operasi baca-tulis.
+ *
+ * Reentrant-safe: pemanggilan bertingkat dengan nama lock yang sama tidak
+ * membuka flock baru, jadi tidak deadlock. Nama berbeda tetap mengunci
+ * terpisah, jadi jangan membuat urutan lock melingkar antar pemanggil.
+ */
+function klik_with_lock(string $lockName, callable $fn): mixed
+{
+    static $held = [];
+
+    $key = strtolower(trim($lockName));
+    if (!preg_match('/^[a-z0-9_-]+$/', $key)) {
+        throw new InvalidArgumentException('Nama lock tidak valid.');
     }
-    if (!rename($tmp, $file)) {
-        @unlink($tmp);
-        throw new RuntimeException('Gagal menyimpan file data.');
+
+    if (isset($held[$key])) {
+        return $fn();
+    }
+
+    $file = klik_data_dir() . DIRECTORY_SEPARATOR . $key . '.lock';
+    $handle = fopen($file, 'c');
+    if ($handle === false) {
+        throw new RuntimeException('Gagal membuka file lock.');
+    }
+
+    $locked = false;
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            throw new RuntimeException('Gagal mengunci operasi.');
+        }
+        $locked = true;
+        $held[$key] = true;
+
+        return $fn();
+    } finally {
+        unset($held[$key]);
+        if ($locked) {
+            flock($handle, LOCK_UN);
+        }
+        fclose($handle);
     }
 }
 
 /**
  * Baca, ubah, dan tulis file JSON dalam satu lock.
- * Mutator harus mengembalikan array baru.
+ * Mutator harus mengembalikan array baru. Penulisan memakai temporary file
+ * lalu rename agar pembaca tidak pernah melihat isi file setengah jadi.
  */
 function klik_update_json(string $name, callable $mutator, array $default = []): array
 {
     $file = klik_data_file($name);
-    $handle = fopen($file, 'c+');
-    if ($handle === false) {
-        throw new RuntimeException('Gagal membuka file data.');
-    }
 
-    try {
-        if (!flock($handle, LOCK_EX)) {
-            throw new RuntimeException('Gagal mengunci file data.');
-        }
-
-        $raw = stream_get_contents($handle);
-        $data = ($raw !== false && trim($raw) !== '') ? json_decode($raw, true) : $default;
-        if (!is_array($data)) {
-            $data = $default;
-        }
+    return klik_with_lock($name, static function () use ($name, $file, $mutator, $default): array {
+        $data = klik_read_json($name, $default);
 
         $result = $mutator($data);
         if (!is_array($result)) {
@@ -98,14 +152,16 @@ function klik_update_json(string $name, callable $mutator, array $default = []):
             throw new RuntimeException('Gagal mengubah data menjadi JSON.');
         }
 
-        ftruncate($handle, 0);
-        rewind($handle);
-        fwrite($handle, $json);
-        fflush($handle);
-        flock($handle, LOCK_UN);
+        $tmp = $file . '.tmp.' . getmypid() . '.' . bin2hex(random_bytes(4));
+        if (file_put_contents($tmp, $json, LOCK_EX) === false) {
+            @unlink($tmp);
+            throw new RuntimeException('Gagal menulis file data.');
+        }
+        if (!rename($tmp, $file)) {
+            @unlink($tmp);
+            throw new RuntimeException('Gagal menyimpan file data.');
+        }
 
         return $result;
-    } finally {
-        fclose($handle);
-    }
+    });
 }

@@ -1,0 +1,89 @@
+/* =========================================================
+   Klik Indomaret — prototype
+   base.css
+   ========================================================= */
+
+:root {
+  --blue: #0b3f8f;
+  --blue-700: #0a3578;
+  --blue-600: #124eae;
+  --blue-500: #2f6fd0;
+  --blue-100: #dbe8fb;
+  --blue-50: #eef4ff;
+  --navy: #102a57;
+  --red: #e0242b;
+  --red-600: #c81c22;
+  --red-50: #fff0f0;
+  --amber: #f5a623;
+  --green: #0f9d58;
+  --ink: #182234;
+  --muted: #6f7a8c;
+  --soft: #8b95a6;
+  --line: #e7ebf1;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(15, 42, 87, 0.08);
+  --shadow-lg: 0 18px 40px rgba(6, 25, 60, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: #e6ebf3;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+

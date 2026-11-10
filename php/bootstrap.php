@@ -23,6 +23,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/lib/store.php';
 require_once __DIR__ . '/lib/catalog.php';
+require_once __DIR__ . '/lib/pricing.php';
 require_once __DIR__ . '/lib/auth.php';
 require_once __DIR__ . '/lib/order.php';
 

@@ -61,6 +61,9 @@ try {
         if (mb_strlen($name) < 3) {
             klik_json_response(['ok' => false, 'error' => 'Nama minimal 3 karakter.'], 422);
         }
+        if ($phone === '' && $email === '') {
+            klik_json_response(['ok' => false, 'error' => 'Isi nomor HP atau email.'], 422);
+        }
         if ($phone !== '' && !preg_match('/^\d{10,15}$/', $phone)) {
             klik_json_response(['ok' => false, 'error' => 'Nomor HP harus 10–15 digit angka.'], 422);
         }
@@ -68,31 +71,44 @@ try {
             klik_json_response(['ok' => false, 'error' => 'Format email belum benar.'], 422);
         }
 
-        foreach (klik_read_json('users') as $other) {
-            if ((int) ($other['id'] ?? 0) === (int) $user['id']) {
-                continue;
-            }
-            if ($phone !== '' && klik_normalize_phone((string) ($other['phone'] ?? '')) === $phone) {
-                klik_json_response(['ok' => false, 'error' => 'Nomor HP sudah dipakai akun lain.'], 409);
-            }
-            if ($email !== '' && strtolower((string) ($other['email'] ?? '')) === $email) {
-                klik_json_response(['ok' => false, 'error' => 'Email sudah dipakai akun lain.'], 409);
-            }
-        }
+        // Cek duplikasi dan update harus memakai snapshot user yang sama.
+        // Kalau dipisah, dua request bisa sama-sama lolos cek lalu menulis
+        // nomor HP/email yang sama.
+        $result = klik_with_lock('users', static function () use ($user, $name, $phone, $email): array {
+            $userId = (int) $user['id'];
 
-        klik_update_json('users', static function (array $users) use ($user, $name, $phone, $email): array {
-            foreach ($users as &$item) {
-                if ((int) ($item['id'] ?? 0) === (int) $user['id']) {
-                    $item['name'] = $name;
-                    $item['phone'] = $phone;
-                    $item['email'] = $email;
-                    break;
+            foreach (klik_read_json('users') as $other) {
+                if ((int) ($other['id'] ?? 0) === $userId) {
+                    continue;
+                }
+                if ($phone !== '' && klik_normalize_phone((string) ($other['phone'] ?? '')) === $phone) {
+                    return ['status' => 409, 'error' => 'Nomor HP sudah dipakai akun lain.'];
+                }
+                if ($email !== '' && strtolower((string) ($other['email'] ?? '')) === $email) {
+                    return ['status' => 409, 'error' => 'Email sudah dipakai akun lain.'];
                 }
             }
-            unset($item);
 
-            return $users;
-        }, []);
+            klik_update_json('users', static function (array $users) use ($userId, $name, $phone, $email): array {
+                foreach ($users as &$item) {
+                    if ((int) ($item['id'] ?? 0) === $userId) {
+                        $item['name'] = $name;
+                        $item['phone'] = $phone;
+                        $item['email'] = $email;
+                        break;
+                    }
+                }
+                unset($item);
+
+                return $users;
+            }, []);
+
+            return ['status' => 200, 'error' => null];
+        });
+
+        if ($result['error'] !== null) {
+            klik_json_response(['ok' => false, 'error' => $result['error']], (int) $result['status']);
+        }
 
         $freshUser = klik_find_user_by_id((int) $user['id']);
 

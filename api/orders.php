@@ -38,150 +38,150 @@ try {
             $products[(string) ($product['id'] ?? '')] = $product;
         }
 
-        $subtotal = 0;
-        $originalTotal = 0;
-        $normalizedItems = [];
-
-        foreach ($items as $item) {
-            if (!is_array($item)) {
-                klik_json_response(['ok' => false, 'error' => 'Item pesanan tidak valid.'], 422);
-            }
-
-            $id = (string) ($item['id'] ?? '');
-            $qty = (int) ($item['qty'] ?? 0);
-
-            if (!isset($products[$id]) || $qty < 1 || $qty > 99) {
-                klik_json_response(['ok' => false, 'error' => 'Ada produk yang tidak valid di pesanan.'], 422);
-            }
-
-            $product = $products[$id];
-            $price = (int) ($product['price'] ?? 0);
-            $original = (int) ($product['original'] ?? $price);
-
-            $subtotal += $price * $qty;
-            $originalTotal += $original * $qty;
-            $normalizedItems[] = [
-                'id' => $id,
-                'name' => (string) ($product['short'] ?? $product['name'] ?? $id),
-                'qty' => $qty,
-                'variant' => (string) ($item['variant'] ?? ($product['unit'] ?? '')),
-                'price' => $price,
-                'emoji' => (string) ($product['emoji'] ?? '🛒'),
-                'tint' => (string) ($product['tint'] ?? '#eef2f8'),
-            ];
+        $maxQty = klik_setting('maxQty', 99);
+        $normalized = klik_normalize_order_items($items, $products, $maxQty);
+        if (($normalized['ok'] ?? false) !== true) {
+            klik_json_response([
+                'ok' => false,
+                'error' => (string) ($normalized['error'] ?? 'Ada produk yang tidak valid di pesanan.'),
+            ], 422);
         }
+
+        $normalizedItems = $normalized['items'];
+        $subtotal = (int) $normalized['subtotal'];
+        $originalTotal = (int) $normalized['originalTotal'];
 
         $delivery = (string) ($data['delivery'] ?? 'express');
         if (!in_array($delivery, ['express', 'pickup'], true)) {
             $delivery = 'express';
         }
 
-        $shippingFee = $delivery === 'express' ? 10000 : 0;
-        $voucherCode = strtoupper(trim((string) ($data['voucher'] ?? '')));
-        $voucherDiscount = 0;
-        $voucherLabel = '';
+        // Seluruh validasi voucher/poin dan perubahan data berjalan dalam satu
+        // lock. Validasi dilakukan di sini agar selalu membaca order dan poin
+        // terbaru dari disk, bukan snapshot sebelum lock.
+        $result = klik_with_lock('checkout', static function () use ($data, $user, $normalizedItems, $subtotal, $originalTotal, $delivery): array {
+            $userId = (int) $user['id'];
 
-        if ($voucherCode !== '') {
-            $voucher = klik_voucher($voucherCode);
-            if ($voucher === null) {
-                klik_json_response(['ok' => false, 'error' => 'Voucher tidak dikenal.'], 422);
-            }
+            $shippingFee = $delivery === 'express' ? klik_setting('shippingExpress', 10000) : 0;
+            $voucherCode = strtoupper(trim((string) ($data['voucher'] ?? '')));
+            $voucherDiscount = 0;
+            $voucherLabel = '';
 
-            if (!in_array($voucherCode, klik_claimed_codes((int) $user['id']), true)) {
-                klik_json_response(['ok' => false, 'error' => 'Klaim voucher ini dulu sebelum dipakai.'], 422);
-            }
-
-            $minimum = (int) ($voucher['min'] ?? 0);
-            if ($subtotal < $minimum) {
-                klik_json_response(['ok' => false, 'error' => 'Minimum belanja voucher belum terpenuhi.'], 422);
-            }
-
-            if ($voucherCode === 'GRATISONGKIR') {
-                if ($delivery !== 'express') {
-                    klik_json_response(['ok' => false, 'error' => 'Voucher ongkir hanya untuk pesanan antar.'], 422);
+            if ($voucherCode !== '') {
+                $voucher = klik_voucher($voucherCode);
+                if ($voucher === null) {
+                    return ['status' => 422, 'payload' => ['ok' => false, 'error' => 'Voucher tidak dikenal.']];
                 }
-                $voucherDiscount = min(10000, $shippingFee);
-                $voucherLabel = 'Diskon Voucher Pengiriman';
-            } elseif ($voucherCode === 'GAJIANHEMAT') {
-                $voucherDiscount = min(40000, (int) round($subtotal * 0.4));
-                $voucherLabel = 'Diskon Voucher Gajian';
-            } elseif ($voucherCode === 'NEWMEMBER') {
-                $voucherDiscount = 15000;
-                $voucherLabel = 'Diskon Voucher Member';
-            } elseif ($voucherCode === 'SABTUMERIAH') {
-                if ($delivery !== 'express') {
-                    klik_json_response(['ok' => false, 'error' => 'Voucher Sabtu Meriah hanya untuk pesanan antar.'], 422);
+
+                if (!in_array($voucherCode, klik_claimed_codes($userId), true)) {
+                    return ['status' => 422, 'payload' => ['ok' => false, 'error' => 'Klaim voucher ini dulu sebelum dipakai.']];
                 }
-                $voucherDiscount = min(30000, (int) round($subtotal * 0.3)) + min(10000, $shippingFee);
-                $voucherLabel = 'Diskon Voucher Sabtu Meriah';
+
+                if (klik_voucher_used($userId, $voucherCode)) {
+                    return ['status' => 422, 'payload' => ['ok' => false, 'error' => 'Voucher ini sudah pernah kamu pakai.']];
+                }
+
+                $minimum = (int) ($voucher['min'] ?? 0);
+                if ($subtotal < $minimum) {
+                    return ['status' => 422, 'payload' => ['ok' => false, 'error' => 'Minimum belanja voucher belum terpenuhi.']];
+                }
+
+                if (!empty($voucher['expressOnly']) && $delivery !== 'express') {
+                    return ['status' => 422, 'payload' => ['ok' => false, 'error' => 'Voucher ini hanya untuk pesanan antar.']];
+                }
+
+                $voucherDiscount = klik_voucher_discount($voucher, $subtotal, $shippingFee);
+                $voucherLabel = $voucherDiscount > 0
+                    ? (string) ($voucher['label'] ?? $voucher['title'] ?? 'Diskon Voucher')
+                    : '';
             }
-        }
 
-        $usePoints = !empty($data['usePoints']);
-        $pointsBalance = (int) ($user['points'] ?? 0);
-        $pointsUsed = $usePoints && $pointsBalance >= 2000 ? 2000 : 0;
-        $pointsDiscount = $pointsUsed > 0 ? 2000 : 0;
+            $usePoints = !empty($data['usePoints']);
+            $account = klik_find_user_by_id($userId);
+            $pointsBalance = (int) ($account['points'] ?? ($user['points'] ?? 0));
+            $pointCost = klik_setting('pointCost', 2000);
+            $pointValue = klik_setting('pointValue', 2000);
 
-        $total = max(0, $subtotal + $shippingFee - $voucherDiscount - $pointsDiscount);
-        $saving = max(0, $originalTotal - $subtotal) + $voucherDiscount + $pointsDiscount;
+            // Jangan diam-diam menagih lebih tinggi dari total yang dilihat pembeli:
+            // kalau poin tidak cukup, tolak dan minta klien menyegarkan saldo poin.
+            if ($usePoints && $pointsBalance < $pointCost) {
+                return ['status' => 422, 'payload' => [
+                    'ok' => false,
+                    'error' => 'Poin kamu tidak cukup untuk penukaran.',
+                    'points' => $pointsBalance,
+                ]];
+            }
 
-        $methodLabel = (string) ($data['method'] ?? 'QRIS');
-        if (!in_array($methodLabel, ['QRIS', 'Transfer Bank', 'Bayar di Tempat'], true)) {
-            $methodLabel = 'QRIS';
-        }
+            $pointsUsed = $usePoints ? $pointCost : 0;
+            $pointsDiscount = $pointsUsed > 0 ? $pointValue : 0;
 
-        $order = [
-            'id' => 'INV-' . date('ymd') . '-' . strtoupper(bin2hex(random_bytes(3))),
-            'user_id' => (int) $user['id'],
-            'date' => date(DATE_ATOM),
-            'items' => $normalizedItems,
-            'subtotal' => $subtotal,
-            'originalTotal' => $originalTotal,
-            'promoDiscount' => max(0, $originalTotal - $subtotal),
-            'shippingFee' => $shippingFee,
-            'voucher' => $voucherCode !== '' ? $voucherCode : null,
-            'voucherDiscount' => $voucherDiscount,
-            'voucherLabel' => $voucherLabel,
-            'pointsUsed' => $pointsUsed,
-            'pointsDiscount' => $pointsDiscount,
-            'total' => $total,
-            'saving' => $saving,
-            'method' => $methodLabel,
-            'delivery' => $delivery,
-            'eta' => $delivery === 'express' ? '45 menit' : '30 menit',
-            'status' => 'Diproses',
-            'address' => $data['address'] ?? null,
-            'store' => $data['store'] ?? null,
-        ];
+            $total = max(0, $subtotal + $shippingFee - $voucherDiscount - $pointsDiscount);
+            $saving = max(0, $originalTotal - $subtotal) + $voucherDiscount + $pointsDiscount;
 
-        klik_update_json('orders', static function (array $orders) use ($order): array {
-            $orders[] = $order;
-            return $orders;
-        }, []);
+            $methodLabel = (string) ($data['method'] ?? 'QRIS');
+            if (!in_array($methodLabel, ['QRIS', 'Transfer Bank', 'Bayar di Tempat'], true)) {
+                $methodLabel = 'QRIS';
+            }
 
-        klik_update_json('users', static function (array $users) use ($user, $pointsUsed, $total): array {
-            foreach ($users as &$item) {
-                if ((int) ($item['id'] ?? 0) === (int) $user['id']) {
-                    $points = (int) ($item['points'] ?? 0);
-                    if ($pointsUsed > 0) {
-                        $points = max(0, $points - $pointsUsed);
+            $order = [
+                'id' => 'INV-' . date('ymd') . '-' . strtoupper(bin2hex(random_bytes(3))),
+                'user_id' => $userId,
+                'date' => date(DATE_ATOM),
+                'items' => $normalizedItems,
+                'subtotal' => $subtotal,
+                'originalTotal' => $originalTotal,
+                'promoDiscount' => max(0, $originalTotal - $subtotal),
+                'shippingFee' => $shippingFee,
+                'voucher' => $voucherCode !== '' ? $voucherCode : null,
+                'voucherDiscount' => $voucherDiscount,
+                'voucherLabel' => $voucherLabel,
+                'pointsUsed' => $pointsUsed,
+                'pointsDiscount' => $pointsDiscount,
+                'total' => $total,
+                'saving' => $saving,
+                'method' => $methodLabel,
+                'delivery' => $delivery,
+                'eta' => $delivery === 'express' ? '45 menit' : '30 menit',
+                'status' => 'Diproses',
+                'address' => $data['address'] ?? null,
+                'store' => $data['store'] ?? null,
+            ];
+
+            // Menulis order dengan kode voucher sekaligus menandainya terpakai;
+            // klik_used_codes membaca voucher dari riwayat order.
+            klik_update_json('orders', static function (array $orders) use ($order): array {
+                $orders[] = $order;
+                return $orders;
+            }, []);
+
+            klik_update_json('users', static function (array $users) use ($userId, $pointsUsed, $order): array {
+                foreach ($users as &$item) {
+                    if ((int) ($item['id'] ?? 0) === $userId) {
+                        $points = (int) ($item['points'] ?? 0);
+                        if ($pointsUsed > 0) {
+                            $points = max(0, $points - $pointsUsed);
+                        }
+                        $item['points'] = $points + (int) floor(((int) $order['total']) / 1000);
+                        break;
                     }
-                    $item['points'] = $points + (int) floor($total / 1000);
-                    break;
                 }
-            }
-            unset($item);
+                unset($item);
 
-            return $users;
-        }, []);
+                return $users;
+            }, []);
 
-        $freshUser = klik_find_user_by_id((int) $user['id']);
+            $freshUser = klik_find_user_by_id($userId);
 
-        klik_json_response([
-            'ok' => true,
-            'order' => klik_public_order($order),
-            'user' => klik_public_user($freshUser ?? $user),
-        ], 201);
+            return ['status' => 201, 'payload' => [
+                'ok' => true,
+                'order' => klik_public_order($order),
+                'user' => klik_public_user($freshUser ?? $user),
+                'claimed' => klik_claimed_codes($userId),
+                'used' => klik_used_codes($userId),
+            ]];
+        });
+
+        klik_json_response($result['payload'], (int) $result['status']);
     }
 
     klik_json_response(['ok' => false, 'error' => 'Metode tidak diizinkan.'], 405);

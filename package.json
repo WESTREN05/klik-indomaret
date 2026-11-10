@@ -1,0 +1,25 @@
+{
+  "name": "klik-indomaret-prototype",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prototype Klik Indomaret — HTML/CSS/JS murni + PHP JSON",
+  "scripts": {
+    "check": "npm run check:catalog && npm run check:images && npm run check:pricing && npm run check:session && npm run check:api && npm run check:php && npm run check:store && npm run check:order && npm run lint:js && npm run lint:css",
+    "reset:demo": "php tools/reset-demo.php",
+    "build:catalog": "node tools/build-catalog.js",
+    "check:catalog": "node tools/check-catalog.js",
+    "check:images": "node tools/check-images.js",
+    "check:pricing": "node tools/test-pricing.js",
+    "check:session": "node tools/test-session.js",
+    "check:api": "node tools/test-api.js",
+    "check:php": "php tools/test-voucher.php",
+    "check:store": "php tools/test-store.php",
+    "check:order": "php tools/test-order.php",
+    "lint:js": "eslint js tools",
+    "lint:css": "stylelint \"css/**/*.css\""
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "stylelint": "^16.0.0"
+  }
+}

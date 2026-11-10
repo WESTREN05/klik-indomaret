@@ -15,6 +15,7 @@ const KlikApi = (() => {
       this.status = status;
       this.data = data;
       this.offline = status === 0;
+      this.timeout = false;
     }
   }
 
@@ -31,7 +32,13 @@ const KlikApi = (() => {
       ...(options.headers || {}),
     };
 
+    const controller = new AbortController();
+    const configuredTimeout = Number(window.KLIK_API_TIMEOUT_MS);
+    const timeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 10000;
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
     let response;
+    let text;
     try {
       response = await fetch(`${base}/${path}`, {
         method,
@@ -39,12 +46,20 @@ const KlikApi = (() => {
         body,
         credentials: 'same-origin',
         cache: 'no-store',
+        signal: controller.signal,
       });
+      text = await response.text();
     } catch (error) {
+      if (controller.signal.aborted) {
+        const apiError = new ApiError('Server tidak merespons. Periksa koneksi lalu coba lagi.', 0, null);
+        apiError.offline = false;
+        apiError.timeout = true;
+        throw apiError;
+      }
       throw new ApiError('Tidak bisa terhubung ke server PHP.', 0, null);
+    } finally {
+      clearTimeout(timer);
     }
-
-    const text = await response.text();
     let data = null;
     let isJson = true;
     try {
@@ -60,9 +75,11 @@ const KlikApi = (() => {
         response.status,
         data
       );
-      // Server statis (Python/Live Server) membalas HTML 404, bukan JSON.
-      // Anggap API tidak tersedia supaya frontend memakai fallback localStorage.
-      if (!isJson) apiError.offline = true;
+      // Server statis (Python/Live Server) membalas HTML 404/405/501 karena
+      // endpoint PHP tidak ada. Hanya status itu yang dianggap API tidak
+      // tersedia; HTML 500 dari PHP adalah error server sungguhan.
+      const staticServerMiss = !isJson && [404, 405, 501].includes(response.status);
+      if (staticServerMiss) apiError.offline = true;
       throw apiError;
     }
 

@@ -1,17 +1,29 @@
 /* produk.js — halaman detail produk */
 
 const pdpParams = new URLSearchParams(location.search);
-const product = findProduct(pdpParams.get('id')) || PRODUCTS[0];
+const product = findProduct(pdpParams.get('id'));
 const store = getStoreData();
 
 let pdpQty = 1;
-let selectedVariant = product.unit;
+let selectedVariant = product ? product.unit : '';
 let selectedDelivery = Store.get(KEY.delivery, 'express');
 let activeTab = 'desc';
 
-const related = PRODUCTS.filter((p) => p.cat === product.cat && p.id !== product.id).slice(0, 6);
-const saveAmount = Math.max(0, (product.original || product.price) - product.price);
-const pct = discountPct(product);
+const related = product
+  ? PRODUCTS.filter((p) => p.cat === product.cat && p.id !== product.id).slice(0, 6)
+  : [];
+const saveAmount = product ? Math.max(0, (product.original || product.price) - product.price) : 0;
+const pct = product ? discountPct(product) : 0;
+
+function renderProductNotFound() {
+  document.title = 'Produk tidak ditemukan — Klik Indomaret';
+  $('#pdpRoot').innerHTML = `<div class="empty" style="padding:56px 20px">
+    <span class="empty__icon">🔎</span>
+    <h2>Produk tidak ditemukan</h2>
+    <p>Produk yang kamu cari mungkin sudah tidak tersedia atau tautannya salah.</p>
+    <a class="btn btn--primary" href="kategori.html">${ICON.bag} Lihat semua produk</a>
+  </div>`;
+}
 
 function badgesHTML() {
   if (product.tags.includes('jsm')) {
@@ -164,7 +176,7 @@ function bindPDP() {
   $('#pdpStepper').addEventListener('click', (event) => {
     const btn = event.target.closest('[data-pdp-step]');
     if (!btn) return;
-    pdpQty = Math.min(99, Math.max(1, pdpQty + Number(btn.dataset.pdpStep)));
+    pdpQty = Math.min(KlikPricing.MAX_QTY, Math.max(1, pdpQty + Number(btn.dataset.pdpStep)));
     updatePdpBar();
   });
 
@@ -246,4 +258,5 @@ function bindPDP() {
   });
 }
 
-renderPDP();
+if (product) renderPDP();
+else renderProductNotFound();

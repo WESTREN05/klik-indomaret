@@ -2,10 +2,25 @@
 
 const getUser = () => Store.get(KEY.user, null);
 const setUser = (user) => Store.set(KEY.user, user);
+
+// Cache pesanan dipisah per akun agar riwayat akun sebelumnya tidak tampil
+// saat user berganti akun di perangkat yang sama.
+const ordersCacheKey = (user = getUser()) => {
+  const identity = String(user?.id ?? user?.phone ?? user?.email ?? '').trim();
+  return identity ? `${KEY.orders}:${identity}` : KEY.orders;
+};
+const getCachedOrders = (user = getUser()) => Store.get(ordersCacheKey(user), []);
+const setCachedOrders = (orders, user = getUser()) => Store.set(ordersCacheKey(user), orders);
+
 const logout = () => {
+  const currentOrdersKey = ordersCacheKey();
   Store.remove(KEY.user);
+  Store.remove(currentOrdersKey);
   Store.remove(KEY.orders);
   Store.remove(KEY.claimed);
+  Store.remove(KEY.used);
+  Store.remove(KEY.address);
+  Store.remove(KEY.store);
   Store.remove(KEY.saldo);
   Store.remove(KEY.points);
   if (window.KlikApi?.isPhp()) {
@@ -35,6 +50,14 @@ const getPoints = () => Store.get(KEY.points, 0);
 const setPoints = (value) => Store.set(KEY.points, value);
 
 const getClaimed = () => Store.get(KEY.claimed, []);
+const getUsed = () => Store.get(KEY.used, []);
+const isVoucherUsed = (code) => getUsed().includes(code);
+
+/** Simpan status voucher (diklaim + sudah dipakai) dari respons server. */
+function applyVoucherState(result) {
+  if (Array.isArray(result?.claimed)) Store.set(KEY.claimed, result.claimed);
+  if (Array.isArray(result?.used)) Store.set(KEY.used, result.used);
+}
 async function claimVoucher(code) {
   // Opsi A: klaim terikat ke akun. Di mode PHP, tamu harus masuk dulu.
   if (window.KlikApi?.isPhp() && !getUser()) {
@@ -51,7 +74,7 @@ async function claimVoucher(code) {
   if (window.KlikApi?.isPhp() && getUser()) {
     try {
       const result = await window.KlikApi.claimVoucher(code);
-      if (Array.isArray(result.claimed)) Store.set(KEY.claimed, result.claimed);
+      applyVoucherState(result);
       return true;
     } catch (error) {
       // Jangan biarkan klaim lokal menempel kalau server menolak/mati.

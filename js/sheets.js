@@ -113,6 +113,7 @@ function openAddressSheet() {
     if (!address) return;
     setAddress(address);
     $$('.js-address-text').forEach((el) => (el.textContent = address.detail));
+    if (typeof renderCart === 'function') renderCart();
     closeSheet();
     toast(`Alamat diubah ke ${address.label}`, 'success');
   });

@@ -78,7 +78,7 @@ Menentukan struktur halaman, navigasi, komponen UI, dan alur pengguna. Desain me
 
 ### 2.3 Implementasi
 
-Membangun antarmuka dengan HTML dan CSS, lalu menambahkan logika dengan JavaScript. Data produk dipisahkan di `js/products.js`, data statis lain di `js/data.js`, dan logika bersama dipecah menjadi `js/core.js`, `js/session.js`, `js/cart.js`, `js/components.js`, `js/sheets.js`, serta `js/app.js` untuk event global dan inisialisasi. Backend PHP ditambahkan di folder `api/` dan `php/`, dengan `js/api.js` sebagai jembatan fetch dan fallback ke `localStorage`.
+Membangun antarmuka dengan HTML dan CSS, lalu menambahkan logika dengan JavaScript. Data produk dipisahkan di `js/products.js`, data statis lain di `js/data.js`, dan logika bersama dipecah menjadi `js/core.js`, `js/form.js`, `js/session.js`, `js/cart.js`, `js/components.js`, `js/sheets.js`, serta `js/app.js` untuk event global dan inisialisasi. Backend PHP ditambahkan di folder `api/` dan `php/`, dengan `js/api.js` sebagai jembatan fetch dan fallback ke `localStorage`.
 
 ### 2.4 Pengujian
 
@@ -143,7 +143,7 @@ Melakukan perbaikan bug dan penyesuaian tampilan, misalnya:
 
 ### 3.4 Kebutuhan data
 
-Data produk bersifat statis di `js/products.js`; kategori, toko, alamat, banner, dan voucher ada di `js/data.js`. Salinannya untuk validasi server ada di `php/data/catalog.json`. Data pengguna dan transaksi disimpan di PHP JSON saat server aktif, dengan cache di `localStorage`:
+Data produk bersifat statis di `js/products.js`; kategori, toko, alamat, banner, voucher, dan settings harga ada di `js/data.js`. `php/data/catalog.json` tidak diedit manual: file itu dihasilkan `npm run build:catalog` dari kedua sumber JS tersebut dan dipakai server untuk validasi. Data pengguna dan transaksi disimpan di PHP JSON saat server aktif, dengan cache di `localStorage`:
 
 | File PHP | Isi |
 | --- | --- |
@@ -294,16 +294,33 @@ klik-indomaret/
 │       ├── users.json
 │       ├── orders.json
 │       └── voucher_claims.json
-├── css/style.css
+├── css/                            # base, layout, components, home,
+│                                   # catalog, cart, account, overlays, responsive
 ├── js/
 │   ├── api.js
 │   ├── data.js
+│   ├── products.js
+│   ├── core.js
+│   ├── form.js
+│   ├── session.js
+│   ├── cart.js
+│   ├── pricing.js
+│   ├── components.js
+│   ├── sheets.js
 │   ├── app.js
 │   ├── home.js
 │   ├── kategori.js
 │   ├── produk.js
 │   ├── keranjang.js
+│   ├── voucher.js
+│   ├── checkout.js
+│   ├── payment.js
+│   ├── form.js
+│   ├── login-validasi.js
+│   ├── login-auth.js
 │   ├── login.js
+│   ├── akun-profil.js
+│   ├── akun-pesanan.js
 │   ├── akun.js
 │   └── promo.js
 ├── assets/products/
@@ -395,15 +412,7 @@ if (!window.KlikApi?.isHttp()) {
 
 ### 5.4 Tampilan halaman
 
-Screenshot hasil implementasi tersimpan di root project:
-
-- `shot-home.png`
-- `shot-kategori.png`
-- `shot-produk.png`
-- `shot-keranjang.png`
-- `shot-login.png`
-- `shot-akun.png`
-- `shot-promo.png`
+Tampilan akhir dapat dilihat langsung dengan menjalankan project. Screenshot tidak disimpan di repository agar folder project tetap ringkas.
 
 ---
 
@@ -454,7 +463,7 @@ Pengujian dilakukan pada browser Edge/Chromium dengan local server. Setiap kasus
 | TC-37 | Reset data PHP | Hapus `users.json`, `orders.json`, `voucher_claims.json` lalu restart | Akun demo dibuat ulang, pesanan kosong | Lulus |
 | TC-38 | Mode statis | Buka lewat Python/Live Server tanpa PHP | Login dan checkout tetap jalan dengan `localStorage` | Lulus |
 
-\* Pesan 404 untuk `assets/products/*.jpg` hanya muncul jika ada elemen gambar produk yang meminta file foto. Saat ini tampilan memakai emoji/gradient, jadi tidak mengganggu fungsi aplikasi.
+\* Foto produk tersedia di `assets/products/<id>.jpg`; emoji/gradient hanya menjadi fallback bila file foto tidak ditemukan.
 
 ### 6.2 Hasil perhitungan demo
 

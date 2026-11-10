@@ -72,7 +72,7 @@ function navHTML(active) {
 function artHTML(p, extraClass = '') {
   return `<div class="art ${extraClass}" style="--tint:${p.tint || '#eef2f8'}">
     <span class="art__blob"></span>
-    <img class="art__img" src="assets/products/${p.id}.jpg" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.remove()">
+    <img class="art__img" src="assets/products/${p.id}.jpg" alt="${escapeHtml(p.name)}" width="640" height="640" loading="lazy" decoding="async" onerror="this.remove()">
     <span class="art__emoji" aria-hidden="true">${p.emoji || '🛒'}</span>
   </div>`;
 }

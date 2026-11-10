@@ -13,6 +13,7 @@ const KEY = {
   points: 'klik_points_v1',
   vouchers: 'klik_vouchers_v1',
   claimed: 'klik_claimed_v1',
+  used: 'klik_used_v1',
   delivery: 'klik_delivery_v1',
 };
 

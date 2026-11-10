@@ -108,7 +108,7 @@ document.addEventListener('keydown', (event) => {
         window.KlikApi.login('081234567890', 'password123')
           .then((result) => {
             if (result.user) applyUserSession(result.user);
-            if (Array.isArray(result.claimed)) Store.set(KEY.claimed, result.claimed);
+            applyVoucherState(result);
             updateCartBadges();
             updateSaldoUI();
             document.dispatchEvent(new CustomEvent('auth:change', { detail: result.user || null }));

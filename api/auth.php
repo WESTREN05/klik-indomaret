@@ -17,6 +17,7 @@ try {
             'ok' => true,
             'user' => klik_public_user($user),
             'claimed' => klik_claimed_codes((int) $user['id']),
+            'used' => klik_used_codes((int) $user['id']),
         ]);
     }
 
@@ -41,6 +42,7 @@ try {
             'ok' => true,
             'user' => klik_public_user($user),
             'claimed' => klik_claimed_codes((int) $user['id']),
+            'used' => klik_used_codes((int) $user['id']),
         ]);
     }
 
@@ -114,6 +116,7 @@ try {
             'ok' => true,
             'user' => klik_public_user($created),
             'claimed' => [],
+            'used' => [],
         ], 201);
     }
 

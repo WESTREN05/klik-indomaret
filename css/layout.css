@@ -1,0 +1,279 @@
+/* ---------------------------------------------------------
+   Shell
+   --------------------------------------------------------- */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg);
+  box-shadow: 0 0 60px rgba(15, 42, 87, 0.12);
+  padding-bottom: 84px;
+  overflow-x: clip;
+}
+
+body[data-page='produk'] .app {
+  padding-bottom: 92px;
+}
+
+body[data-page='keranjang'] .app {
+  padding-bottom: 0;
+}
+
+body[data-page='keranjang'] main {
+  padding-bottom: 170px;
+}
+
+body.has-cartbar .app {
+  padding-bottom: 170px;
+}
+
+body[data-page='login'] .app {
+  padding-bottom: 0;
+  background: #0b3f8f;
+}
+
+main {
+  display: block;
+}
+
+@media (min-width: 720px) {
+  body {
+    padding: 0;
+  }
+
+  .app {
+    border-left: 1px solid rgba(15, 42, 87, 0.06);
+    border-right: 1px solid rgba(15, 42, 87, 0.06);
+  }
+}
+
+/* ---------------------------------------------------------
+   Topbar
+   --------------------------------------------------------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(231, 235, 241, 0.7);
+}
+
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 58px;
+  padding: 0 14px;
+}
+
+.topbar__inner--detail {
+  gap: 8px;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: auto;
+}
+
+.topbar__title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Kolom pencarian topbar hanya tampil di desktop; di mobile tetap ikon + sheet. */
+.topbar__search {
+  display: none;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.logo__mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(145deg, #1557b8, #0a3478);
+  box-shadow: 0 4px 10px rgba(11, 63, 143, 0.28);
+  flex: none;
+}
+
+.logo__mark svg {
+  width: 17px;
+  height: 17px;
+}
+
+.logo__text {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+.logo__text span {
+  color: var(--blue);
+}
+
+.logo--sm .logo__mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.logo--sm .logo__mark svg {
+  width: 14px;
+  height: 14px;
+}
+
+.logo--sm .logo__text {
+  font-size: 13px;
+}
+
+.iconbtn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #3b4557;
+  transition: background 0.15s ease;
+}
+
+.iconbtn:active {
+  background: #eef2f8;
+}
+
+.iconbtn svg {
+  width: 21px;
+  height: 21px;
+}
+
+.iconbtn--dot {
+  position: relative;
+}
+
+.iconbtn--dot::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1.5px solid #fff;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1b63c7, #0a3578);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-decoration: none;
+  flex: none;
+  box-shadow: 0 3px 8px rgba(11, 63, 143, 0.25);
+}
+
+.avatar svg {
+  width: 17px;
+  height: 17px;
+}
+
+.avatar--guest {
+  background: #eef2f8;
+  color: var(--blue);
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------
+   Bottom nav
+   --------------------------------------------------------- */
+.bottomnav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  max-width: 480px;
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #fff;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -6px 20px rgba(15, 42, 87, 0.04);
+}
+
+.bottomnav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #7b8698;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.bottomnav__item.is-active {
+  color: var(--blue);
+}
+
+.bottomnav__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.bottomnav__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottomnav__badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9px;
+  border: 2px solid #fff;
+  background: var(--red);
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 800;
+  line-height: 12px;
+  text-align: center;
+}
+

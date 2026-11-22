@@ -16,8 +16,9 @@ const KlikAkunPesanan = (() => {
   }
 
   function cardHTML(order) {
-    const first = order.items[0] || { name: 'Pesanan', qty: 1, emoji: '🛒', tint: '#eef2f8', id: '' };
-    const more = order.items.length > 1 ? `+${order.items.length - 1} produk lain` : `${first.qty}x`;
+    const items = Array.isArray(order.items) ? order.items : [];
+    const first = items[0] || { name: 'Pesanan', qty: 1, emoji: '🛒', tint: '#eef2f8', id: '' };
+    const more = items.length > 1 ? `+${items.length - 1} produk lain` : `${first.qty || 1}x`;
     return `<article class="order-card">
       <div class="order-card__head">
         <span>${formatDate(order.date)}</span>

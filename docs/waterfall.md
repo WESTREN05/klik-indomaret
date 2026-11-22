@@ -163,6 +163,7 @@ Key `localStorage` yang dipakai frontend:
 | `klik_store_v1` | Toko aktif |
 | `klik_saldo_v1` | Saldo pengguna |
 | `klik_points_v1` | Poin pengguna |
+| `klik_wishlist_v1` | ID produk yang disimpan ke wishlist |
 | `klik_claimed_v1` | Voucher yang sudah diklaim |
 | `klik_delivery_v1` | Metode pengiriman aktif |
 

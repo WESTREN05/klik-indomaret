@@ -4,12 +4,13 @@
    Bottom sheet
    --------------------------------------------------------- */
 function closeSheet() {
-  const sheet = $('.sheet-wrap');
-  if (sheet) {
+  // Tutup semua overlay yang tersisa; kalau hanya yang pertama dipilih,
+  // sheet terbaru bisa tertinggal saat dua sheet dibuka beruntun.
+  $$('.sheet-wrap').forEach((sheet) => {
     sheet.classList.remove('is-open');
-    document.body.classList.remove('no-scroll');
     setTimeout(() => sheet.remove(), 220);
-  }
+  });
+  document.body.classList.remove('no-scroll');
 }
 
 function openSheet({ title = '', body = '', className = '' } = {}) {
@@ -58,6 +59,45 @@ function openHelp() {
       <button class="help-item"><span>${ICON.info}</span><div><strong>Pusat bantuan</strong><small>FAQ seputar pesanan & pengiriman</small></div>${ICON.chevronRight}</button>
       <button class="help-item"><span>${ICON.phone}</span><div><strong>Telepon 1500 123</strong><small>Bebas pulsa dari seluruh Indonesia</small></div>${ICON.chevronRight}</button>
     </div>`,
+  });
+}
+
+function openWishlist() {
+  const items = getWishlist()
+    .map((id) => findProduct(id))
+    .filter(Boolean);
+
+  if (!items.length) {
+    toast('Wishlist masih kosong. Tekan ikon hati di halaman produk untuk menyimpan.', 'info');
+    return;
+  }
+
+  const wrap = openSheet({
+    title: `Wishlist (${items.length})`,
+    body: `<div class="option-list">
+      ${items
+        .map(
+          (p) => `<div class="option">
+            <a class="option__icon" href="produk.html?id=${p.id}" aria-label="${escapeHtml(p.name)}">${p.emoji || ICON.bag}</a>
+            <a class="option__body" href="produk.html?id=${p.id}">
+              <strong>${escapeHtml(p.short || p.name)}</strong>
+              <small>${escapeHtml(p.brand)} · ${money(p.price)}</small>
+            </a>
+            <button class="iconbtn" type="button" data-wish-remove="${p.id}" style="margin-left:auto;flex:none" aria-label="Hapus ${escapeHtml(p.short || p.name)} dari wishlist">${ICON.trash}</button>
+          </div>`
+        )
+        .join('')}
+    </div>
+    <a class="btn btn--primary btn--block" href="kategori.html">Lanjut belanja</a>`,
+  });
+
+  wrap.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-wish-remove]');
+    if (!btn) return;
+    toggleWishlist(btn.dataset.wishRemove);
+    toast('Produk dihapus dari wishlist.', 'info');
+    closeSheet();
+    openWishlist();
   });
 }
 
@@ -152,6 +192,7 @@ function openStoreSheet() {
 function updateSaldoUI() {
   $$('.js-saldo').forEach((el) => (el.textContent = money(getSaldo())));
   $$('.js-points').forEach((el) => (el.textContent = getPoints().toLocaleString('id-ID')));
+  $$('.js-stamp').forEach((el) => (el.textContent = getStamp().toLocaleString('id-ID')));
 }
 
 function openTopUp() {

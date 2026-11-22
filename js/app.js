@@ -14,9 +14,7 @@ document.addEventListener('click', (event) => {
       if (history.length > 1) history.back();
       else location.href = 'index.html';
     }
-    if (name === 'wishlist') {
-      toast('Wishlist masih kosong. Tekan ikon hati di halaman produk untuk menyimpan.', 'info');
-    }
+    if (name === 'wishlist') openWishlist();
     return;
   }
 

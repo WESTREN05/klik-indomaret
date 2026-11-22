@@ -19,11 +19,12 @@ function klik_page_bootstrap_script(array $bootstrap): string
     return '<script>(function(){var boot=' . $json . ';window.KLIK_BOOTSTRAP=boot;'
         . 'try{'
         // Saat session habis, buang cache akun supaya data lama tidak tampil
-        // untuk tamu atau akun berikutnya. Keranjang dan pilihan kirim tetap.
+        // untuk tamu atau akun berikutnya. Alamat/toko ikut dibuang kalau ada
+        // sisa sesi akun, tetapi preferensi tamu (tanpa cache user) tetap
+        // dipertahankan agar tidak hilang tiap pindah halaman.
         . 'if(!boot.user){'
+        . 'var hadSession=localStorage.getItem("klik_user_v1")!==null;'
         . 'localStorage.removeItem("klik_orders_v1");'
-        . 'localStorage.removeItem("klik_address_v1");'
-        . 'localStorage.removeItem("klik_store_v1");'
         . 'var stale=[];for(var i=0;i<localStorage.length;i++){'
         . 'var k=localStorage.key(i);'
         . 'if(k&&k.indexOf("klik_orders_v1:")===0)stale.push(k);'
@@ -32,6 +33,10 @@ function klik_page_bootstrap_script(array $bootstrap): string
         . 'localStorage.removeItem("klik_user_v1");'
         . 'localStorage.removeItem("klik_saldo_v1");'
         . 'localStorage.removeItem("klik_points_v1");'
+        . 'if(hadSession){'
+        . 'localStorage.removeItem("klik_address_v1");'
+        . 'localStorage.removeItem("klik_store_v1");'
+        . '}'
         . '}else{'
         . 'localStorage.setItem("klik_user_v1",JSON.stringify(boot.user));'
         . 'if(typeof boot.user.saldo==="number")localStorage.setItem("klik_saldo_v1",JSON.stringify(boot.user.saldo));'

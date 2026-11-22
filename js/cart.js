@@ -52,7 +52,7 @@ function cartVariantFor(id) {
 
 function addToCart(id, qty = 1, variant) {
   const p = findProduct(id);
-  if (!p) return;
+  if (!p) return false;
   const v = variant || p.unit;
   const amount = Math.max(1, Math.floor(Number(qty) || 1));
   const cart = getCart();
@@ -61,7 +61,7 @@ function addToCart(id, qty = 1, variant) {
 
   if (currentQty >= KlikPricing.MAX_QTY) {
     toast(`Jumlah ${p.short} sudah maksimal ${KlikPricing.MAX_QTY}.`, 'info');
-    return;
+    return false;
   }
 
   const nextQty = Math.min(KlikPricing.MAX_QTY, currentQty + amount);
@@ -74,6 +74,7 @@ function addToCart(id, qty = 1, variant) {
   } else {
     toast(`${p.short} ditambahkan ke keranjang`, 'success');
   }
+  return true;
 }
 
 function setItemQty(id, variant, qty) {

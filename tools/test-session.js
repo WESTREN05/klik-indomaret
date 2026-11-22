@@ -68,7 +68,7 @@ function createSession({ phpMode = false } = {}) {
     fs.readFileSync(path.join(root, 'js', 'session.js'), 'utf8') +
     '\n' +
     fs.readFileSync(path.join(root, 'js', 'login-auth.js'), 'utf8') +
-    '\n;globalThis.__SESSION__ = { Store, KEY, logout, getAddress, getStoreData, getUsed, isVoucherUsed, applyVoucherState, applyUserSession, getSaldo, getPoints, getPreferredVoucher, setPreferredVoucher, KlikLoginAuth };';
+    '\n;globalThis.__SESSION__ = { Store, KEY, logout, getAddress, getStoreData, getUsed, isVoucherUsed, applyVoucherState, applyUserSession, getSaldo, getPoints, getStamp, getWishlist, isWishlisted, toggleWishlist, getPreferredVoucher, setPreferredVoucher, KlikLoginAuth };';
 
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: 'js/session.js' });
@@ -186,6 +186,60 @@ test('finishAuth mengisi saldo/poin demo saat cache kosong', () => {
 
   assert.strictEqual(session.getSaldo(), 185000);
   assert.strictEqual(session.getPoints(), 4850);
+});
+
+test('finishAuth membersihkan cache akun sebelumnya saat ganti akun', () => {
+  const session = createSession();
+  seedAccount(session);
+  session.KlikLoginAuth.finishAuth({ id: 8, name: 'Siti Aminah', phone: '081298765432' }, null);
+
+  for (const key of [
+    `${session.KEY.orders}:7`,
+    session.KEY.orders,
+    session.KEY.claimed,
+    session.KEY.used,
+    session.KEY.activeVoucher,
+  ]) {
+    assert.strictEqual(session.Store.get(key, null), null, `${key} masih tersimpan`);
+  }
+  assert.strictEqual(session.getSaldo(), 0);
+  assert.strictEqual(session.getPoints(), 0);
+  assert.strictEqual(
+    JSON.stringify(session.Store.get(session.KEY.cart)),
+    JSON.stringify([{ id: 'sania-2l', qty: 1, variant: 'Pouch 2L' }])
+  );
+});
+
+test('finishAuth mempertahankan cache saat akun yang sama masuk lagi', () => {
+  const session = createSession();
+  seedAccount(session);
+  session.KlikLoginAuth.finishAuth({ id: 7, name: 'Bagas Pratama', phone: '081234567890' }, null);
+
+  assert.strictEqual(session.getSaldo(), 185000);
+  assert.strictEqual(session.getPoints(), 4969);
+  assert.strictEqual(JSON.stringify(session.getUsed()), JSON.stringify(['SABTUMERIAH']));
+});
+
+/* ---- Wishlist dan stamp ---- */
+
+test('wishlist tersimpan dan bisa dihapus', () => {
+  const session = createSession();
+  assert.strictEqual(session.isWishlisted('sania-2l'), false);
+  assert.strictEqual(session.toggleWishlist('sania-2l'), true);
+  assert.strictEqual(JSON.stringify(session.getWishlist()), JSON.stringify(['sania-2l']));
+  assert.strictEqual(session.isWishlisted('sania-2l'), true);
+
+  assert.strictEqual(session.toggleWishlist('sania-2l'), false);
+  assert.strictEqual(JSON.stringify(session.getWishlist()), '[]');
+});
+
+test('stamp dihitung dari poin (1 stamp per 400 poin)', () => {
+  const session = createSession();
+  session.Store.set(session.KEY.points, 4850);
+  assert.strictEqual(session.getStamp(), 12);
+
+  session.Store.set(session.KEY.points, 0);
+  assert.strictEqual(session.getStamp(), 0);
 });
 
 /* ---- Logout ---- */

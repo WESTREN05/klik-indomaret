@@ -93,6 +93,7 @@ function renderGrid(list) {
     $('#resetEmpty')?.addEventListener('click', () => {
       state.cat = 'all';
       state.q = '';
+      state.sort = 'popular';
       state.promo = false;
       state.ready = false;
       state.min = 0;

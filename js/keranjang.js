@@ -14,7 +14,18 @@ const savedVoucherUsable = Boolean(
 let activeVoucher = savedVoucherUsable ? savedVoucher : null;
 if (!activeVoucher) {
   setPreferredVoucher(null);
-  if (delivery === 'express' && isClaimed('GRATISONGKIR') && !isVoucherUsed('GRATISONGKIR')) activeVoucher = 'GRATISONGKIR';
+  // Otomatis pakai gratis ongkir hanya kalau benar-benar memenuhi syarat
+  // (diklaim, belum dipakai, metode antar, dan minimum belanja tercapai).
+  if (
+    KlikPricing.voucherUsable('GRATISONGKIR', {
+      subtotal: KlikPricing.itemsSummary(getCart()).subtotal,
+      delivery,
+      claimed: getClaimed(),
+      used: getUsed(),
+    })
+  ) {
+    activeVoucher = 'GRATISONGKIR';
+  }
 }
 const selected = new Set(getCart().map(cartKey));
 
@@ -175,7 +186,7 @@ function renderCart() {
               : 'Pilih voucher untuk hemat ekstra'
         }</small>
       </div>
-      <button class="info-card__link" type="button" id="voucherBtn">${activeVoucher ? 'Ubah' : 'Pakai'}</button>
+      <button class="info-card__link" type="button" id="voucherBtn">${t.voucherActive ? 'Ubah' : 'Pakai'}</button>
     </div>
 
     ${

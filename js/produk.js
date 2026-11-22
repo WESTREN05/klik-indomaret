@@ -61,7 +61,7 @@ function renderPDP() {
     <section class="pdp-media" aria-label="Foto produk">
       <div class="pdp-badges">${badgesHTML()}</div>
       <div class="pdp-float">
-        <button type="button" id="likeBtn" aria-label="Simpan ke wishlist" aria-pressed="false">${ICON.heart}</button>
+        <button type="button" id="likeBtn" class="${isWishlisted(product.id) ? 'is-liked' : ''}" aria-label="Simpan ke wishlist" aria-pressed="${isWishlisted(product.id)}">${ICON.heart}</button>
         <button type="button" id="shareBtn" aria-label="Bagikan produk">${ICON.share}</button>
       </div>
       ${artHTML(product)}
@@ -181,7 +181,7 @@ function bindPDP() {
   });
 
   $('#buyNow').addEventListener('click', () => {
-    addToCart(product.id, pdpQty, selectedVariant);
+    if (!addToCart(product.id, pdpQty, selectedVariant)) return;
     setTimeout(() => {
       location.href = 'keranjang.html';
     }, 260);
@@ -217,7 +217,8 @@ function bindPDP() {
 
   $('#likeBtn').addEventListener('click', (event) => {
     const btn = event.currentTarget;
-    const liked = btn.classList.toggle('is-liked');
+    const liked = toggleWishlist(product.id);
+    btn.classList.toggle('is-liked', liked);
     btn.setAttribute('aria-pressed', String(liked));
     toast(liked ? 'Produk disimpan ke wishlist.' : 'Produk dihapus dari wishlist.', 'info');
   });

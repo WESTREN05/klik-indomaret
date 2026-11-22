@@ -88,7 +88,7 @@ Isi keranjang demo: Sania Minyak Goreng 2L ×1, Ultra Milk 1L ×2, Indomie Ayam 
 
 - **Beranda:** banner promo, kategori, flash sale dengan countdown, produk populer, pencarian, top up saldo, ganti alamat/toko.
 - **Katalog:** pencarian real-time, filter harga min/max, urutan (terpopuler, harga, rating), filter promo JSM & ready, cart bar.
-- **Detail produk:** pilih varian, pilih express/ambil di toko, ganti toko, galeri warna, tab informasi, wishlist, share, tambah ke keranjang, beli sekarang.
+- **Detail produk:** pilih varian, pilih express/ambil di toko, ganti toko, galeri warna, tab informasi, wishlist tersimpan, share, tambah ke keranjang, beli sekarang.
 - **Keranjang:** pilih semua/sebagian, stepper jumlah, hapus item, ganti alamat/toko, empat voucher (Gratis Ongkir, Diskon Gajian 40%, Member Baru, Sabtu Meriah), tukar poin, ringkasan diskon, metode pembayaran QRIS/Transfer/COD, halaman sukses.
 - **Auth:** login, register dengan validasi, lupa password (mock), show/hide password, session PHP, redirect ke halaman tujuan.
 - **Akun:** edit profil, riwayat pesanan dari server, pengaturan, bantuan, tentang aplikasi, logout tanpa menghapus keranjang.
@@ -221,9 +221,9 @@ klik-indomaret/
 │   ├── check-catalog.js            # cek ID, harga, varian, voucher vs catalog.json
 │   ├── check-images.js             # cek nama/format + kelengkapan foto produk
 │   ├── test-pricing.js             # 19 kasus uji total, voucher, ongkir, poin
-│   ├── test-session.js             # 12 kasus uji logout, voucher, saldo/poin
+│   ├── test-session.js             # 16 kasus uji logout, voucher, saldo/poin/wishlist
 │   ├── test-api.js                 # 10 kasus uji klasifikasi error API
-│   ├── test-page.js                # 3 kasus uji bootstrap localStorage
+│   ├── test-page.js                # 4 kasus uji bootstrap localStorage
 │   ├── test-promo.js               # 6 kasus uji tombol Pakai voucher
 │   ├── test-voucher.php            # 7 kasus uji voucher sekali pakai (server)
 │   ├── test-store.php              # 6 kasus uji lock + update JSON atomik
@@ -273,7 +273,7 @@ lalu refresh. Kunci penyimpanan memakai prefix `klik_*_v1`.
 
 - **Mode PHP:** user, session, pesanan, klaim voucher, saldo, dan poin disimpan di `php/data/*.json`. Frontend tetap memakai `localStorage` sebagai cache agar halaman cepat tampil.
 - **Mode statis:** semua data memakai `localStorage`; tidak ada request ke PHP.
-- Keranjang, alamat, toko, dan metode pengiriman selalu disimpan di `localStorage` agar tetap ada saat pindah halaman.
+- Keranjang, alamat, toko, metode pengiriman, dan wishlist selalu disimpan di `localStorage` agar tetap ada saat pindah halaman.
 
 ---
 
@@ -322,12 +322,12 @@ npm run check
 - `tools/check-catalog.js` — memastikan ID/kode, harga, varian, dan aturan voucher di `js/data.js` + `js/products.js` cocok dengan `php/data/catalog.json`. Jika beda, jalankan `npm run build:catalog`.
 - `tools/check-images.js` — memastikan foto yang ada memakai `<id>.jpg` huruf kecil; foto yang belum ada dilaporkan sebagai INFO.
 - `tools/test-pricing.js` — 19 kasus uji total, voucher, ongkir, dan poin (angka demo di `docs/waterfall.md`).
-- `tools/test-session.js` — 12 kasus uji status voucher, voucher pilihan lintas halaman, pembersihan data saat logout, keranjang yang dipertahankan, dan sinkronisasi saldo/poin dari server.
+- `tools/test-session.js` — 16 kasus uji status voucher, voucher pilihan lintas halaman, pembersihan data saat logout, isolasi cache antar akun, keranjang yang dipertahankan, sinkronisasi saldo/poin dari server, wishlist, dan perhitungan stamp.
 - `tools/test-api.js` — 10 kasus uji klasifikasi error API: HTML/non-JSON memakai pesan ramah, pesan JSON tetap dipakai, dan HTML 5xx bukan mode offline.
 - `tools/test-voucher.php` — 7 kasus uji aturan voucher sekali pakai di server memakai fixture, tanpa menyentuh `php/data` (butuh PHP CLI).
 - `tools/test-store.php` — 6 kasus uji lock reentrant, mutual exclusion antar-proses, dan update JSON atomik (butuh PHP CLI).
 - `tools/test-order.php` — 10 kasus uji penggabungan item dan batas `maxQty` (butuh PHP CLI).
-- `tools/test-page.js` — 3 kasus uji skrip bootstrap: cache akun dibersihkan saat session habis, sedangkan keranjang dipertahankan.
+- `tools/test-page.js` — 4 kasus uji skrip bootstrap: saldo/poin/riwayat/alamat/toko akun dibersihkan saat session habis, keranjang dan metode pengiriman dipertahankan, dan preferensi alamat/toko tamu tidak dihapus.
 - `tools/test-promo.js` — 6 kasus uji tombol Pakai: voucher terklaim tersimpan sebagai pilihan, voucher khusus antar otomatis memilih metode express, dan tombol membuka halaman keranjang.
 - ESLint untuk `js/` dan `tools/`.
 - Stylelint untuk `css/`.

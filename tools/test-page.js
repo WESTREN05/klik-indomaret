@@ -6,8 +6,9 @@
  * Jalankan dari root proyek:
  *   node tools/test-page.js
  *
- * Fokus: saat session PHP habis, cache alamat/toko/riwayat per akun ikut
+ * Fokus: saat session PHP habis, cache saldo/poin/riwayat/alamat/toko akun
  * dibersihkan, sedangkan keranjang dan pilihan pengiriman dipertahankan.
+ * Preferensi alamat/toko tamu (tanpa cache user) tetap disimpan.
  */
 
 const { execFileSync } = require('child_process');
@@ -116,6 +117,22 @@ test('session habis membersihkan cache akun dan riwayat per akun', () => {
   assert.strictEqual(localStorage.getItem('klik_delivery_v1'), seed.klik_delivery_v1);
   assert.strictEqual(localStorage.getItem('klik_claimed_v1'), '[]');
   assert.strictEqual(localStorage.getItem('klik_used_v1'), '[]');
+  assert.strictEqual(window.KLIK_BOOTSTRAP.user, null);
+});
+
+test('tamu tetap memakai alamat dan toko pilihannya saat pindah halaman', () => {
+  const seed = {
+    klik_address_v1: JSON.stringify({ id: 'kantor' }),
+    klik_store_v1: JSON.stringify({ id: 'toko-2' }),
+    klik_cart_v1: JSON.stringify([{ id: 'sania-2l', qty: 1, variant: 'Pouch 2L' }]),
+    klik_delivery_v1: JSON.stringify('express'),
+  };
+  const { localStorage, window } = run({ php: true, apiBase: 'api', user: null, claimed: [], used: [] }, seed);
+
+  assert.strictEqual(localStorage.getItem('klik_address_v1'), seed.klik_address_v1);
+  assert.strictEqual(localStorage.getItem('klik_store_v1'), seed.klik_store_v1);
+  assert.strictEqual(localStorage.getItem('klik_cart_v1'), seed.klik_cart_v1);
+  assert.strictEqual(localStorage.getItem('klik_delivery_v1'), seed.klik_delivery_v1);
   assert.strictEqual(window.KLIK_BOOTSTRAP.user, null);
 });
 

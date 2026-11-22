@@ -4,6 +4,9 @@ const KlikLoginAuth = (() => {
   let redirectPage = 'index.html';
 
   function finishAuth(user, button) {
+    // Akun yang berbeda harus mulai dari cache bersih (saldo/poin/voucher
+    // akun sebelumnya tidak boleh ikut terbawa, terutama di mode statis).
+    resetAccountCacheFor(user);
     applyUserSession(user);
     // Data server (kalau dikirim) sudah menimpa cache lewat applyUserSession.
     // Default demo hanya mengisi cache yang masih kosong, supaya saldo/poin
@@ -36,8 +39,8 @@ const KlikLoginAuth = (() => {
       KlikForm.setBusy(button, true);
       try {
         const result = await window.KlikApi.login(contact, password);
-        applyVoucherState(result);
         finishAuth(result.user, button);
+        applyVoucherState(result);
         return;
       } catch (error) {
         KlikForm.setBusy(button, false);
@@ -85,8 +88,8 @@ const KlikLoginAuth = (() => {
       KlikForm.setBusy(button, true);
       try {
         const result = await window.KlikApi.register(payload);
-        applyVoucherState(result);
         finishAuth(result.user, button);
+        applyVoucherState(result);
         return;
       } catch (error) {
         KlikForm.setBusy(button, false);

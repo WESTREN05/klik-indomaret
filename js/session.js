@@ -50,6 +50,23 @@ const setSaldo = (value) => Store.set(KEY.saldo, value);
 const getPoints = () => Store.get(KEY.points, 0);
 const setPoints = (value) => Store.set(KEY.points, value);
 
+// Satu stamp per 400 poin. Demo 4.850 poin menghasilkan 12 stamp.
+const STAMP_POINTS = 400;
+const getStamp = () => Math.floor(Math.max(0, getPoints()) / STAMP_POINTS);
+
+const getWishlist = () => {
+  const list = Store.get(KEY.wishlist, []);
+  return Array.isArray(list) ? list.filter((id) => typeof id === 'string' && id) : [];
+};
+const isWishlisted = (id) => getWishlist().includes(id);
+const toggleWishlist = (id) => {
+  if (!id) return false;
+  const list = getWishlist();
+  const liked = list.includes(id);
+  Store.set(KEY.wishlist, liked ? list.filter((item) => item !== id) : [...list, id]);
+  return !liked;
+};
+
 const getClaimed = () => Store.get(KEY.claimed, []);
 const getUsed = () => Store.get(KEY.used, []);
 const isVoucherUsed = (code) => getUsed().includes(code);
@@ -87,6 +104,11 @@ async function claimVoucher(code) {
     } catch (error) {
       // Jangan biarkan klaim lokal menempel kalau server menolak/mati.
       Store.set(KEY.claimed, getClaimed().filter((item) => item !== code));
+      if (error.status === 401) {
+        logout();
+        promptLogin();
+        return false;
+      }
       if (error.offline) {
         console.warn('[Klik] Klaim voucher gagal disinkronkan: server tidak tersedia.', error);
       } else {
@@ -99,6 +121,29 @@ async function claimVoucher(code) {
   return true;
 }
 const isClaimed = (code) => getClaimed().includes(code);
+
+/**
+ * Bersihkan cache milik akun sebelumnya saat akun berbeda masuk tanpa logout.
+ * Mode PHP akan mengisi ulang saldo/poin/voucher dari server; mode statis
+ * tidak punya data server, jadi cache lama harus dibuang agar tidak bocor.
+ */
+function resetAccountCacheFor(nextUser) {
+  const previous = getUser();
+  if (!previous) return;
+
+  const identity = (user) => String(user?.id ?? user?.phone ?? user?.email ?? '').trim();
+  const before = identity(previous);
+  const after = identity(nextUser);
+  if (before && after && before === after) return;
+
+  Store.remove(ordersCacheKey(previous));
+  Store.remove(KEY.orders);
+  Store.remove(KEY.claimed);
+  Store.remove(KEY.used);
+  Store.remove(KEY.activeVoucher);
+  Store.remove(KEY.saldo);
+  Store.remove(KEY.points);
+}
 
 /**
  * Simpan user dari server ke cache localStorage sekaligus saldo & poinnya.

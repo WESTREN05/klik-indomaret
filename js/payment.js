@@ -126,8 +126,9 @@ const KlikPayment = (() => {
 
     if (!serverHandled) {
       // Mode statis tidak punya server: catat voucher terpakai agar tidak bisa
-      // dipilih lagi pada pesanan berikutnya di perangkat ini.
-      if (activeVoucher && !isVoucherUsed(activeVoucher)) {
+      // dipilih lagi pada pesanan berikutnya di perangkat ini. Hanya tandai
+      // terpakai kalau diskonnya benar-benar diterapkan.
+      if (t.voucherActive && activeVoucher && !isVoucherUsed(activeVoucher)) {
         Store.set(KEY.used, [...getUsed(), activeVoucher]);
       }
       if (usePoints) setPoints(Math.max(0, getPoints() - KlikPricing.POINT_COST));

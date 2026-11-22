@@ -19,7 +19,7 @@ const KlikAkunProfil = (() => {
       <div class="profile-stats">
         <div class="profile-stat"><small>Saldo</small><strong>${money(getSaldo())}</strong></div>
         <div class="profile-stat"><small>Poinku</small><strong>${getPoints().toLocaleString('id-ID')}</strong></div>
-        <div class="profile-stat"><small>Stamp</small><strong>12</strong></div>
+        <div class="profile-stat"><small>Stamp</small><strong>${getStamp().toLocaleString('id-ID')}</strong></div>
       </div>
     </section>`;
   }

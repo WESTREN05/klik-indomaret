@@ -15,6 +15,7 @@ const KEY = {
   claimed: 'klik_claimed_v1',
   used: 'klik_used_v1',
   activeVoucher: 'klik_active_voucher_v1',
+  wishlist: 'klik_wishlist_v1',
   delivery: 'klik_delivery_v1',
 };
 
